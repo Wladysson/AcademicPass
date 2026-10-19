@@ -76,7 +76,12 @@ public class LdapAuthenticationRepository {
                 configuration.bindPassword()
         );
 
-        try (DirContext context = new InitialDirContext(environment)) {
+        DirContext context = null;
+        NamingEnumeration<SearchResult> results = null;
+
+        try {
+            context = new InitialDirContext(environment);
+
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
             controls.setCountLimit(2);
@@ -96,35 +101,50 @@ public class LdapAuthenticationRepository {
                     + escapeLdapFilter(username)
                     + ")";
 
-            try (NamingEnumeration<SearchResult> results =
-                         context.search(
-                                 configuration.baseDn(),
-                                 filter,
-                                 controls
-                         )) {
+            results = context.search(
+                    configuration.baseDn(),
+                    filter,
+                    controls
+            );
 
-                if (!results.hasMore()) {
-                    return null;
-                }
+            if (!results.hasMore()) {
+                return null;
+            }
 
-                SearchResult result = results.next();
+            SearchResult result = results.next();
 
-                if (results.hasMore()) {
-                    throw new IllegalStateException(
-                            "O LDAP retornou múltiplas contas para o usuário informado."
-                    );
-                }
-
-                return mapUser(
-                        result,
-                        configuration
+            if (results.hasMore()) {
+                throw new IllegalStateException(
+                        "O LDAP retornou múltiplas contas para o usuário informado."
                 );
             }
+
+            return mapUser(
+                    result,
+                    configuration
+            );
+
         } catch (NamingException exception) {
             throw new IllegalStateException(
                     "Não foi possível consultar o diretório LDAP.",
                     exception
             );
+        } finally {
+            if (results != null) {
+                try {
+                    results.close();
+                } catch (NamingException ignored) {
+                    // Preserva o resultado ou a exceção original.
+                }
+            }
+
+            if (context != null) {
+                try {
+                    context.close();
+                } catch (NamingException ignored) {
+                    // Preserva o resultado ou a exceção original.
+                }
+            }
         }
     }
 
@@ -207,15 +227,29 @@ public class LdapAuthenticationRepository {
         environment.put(Context.SECURITY_PRINCIPAL, userDn);
         environment.put(Context.SECURITY_CREDENTIALS, password);
 
-        try (DirContext ignored = new InitialDirContext(environment)) {
+        DirContext context = null;
+
+        try {
+            context = new InitialDirContext(environment);
             // A conexão autenticada confirma as credenciais do usuário.
+
         } catch (AuthenticationException exception) {
             throw new InvalidCredentialsException();
+
         } catch (NamingException exception) {
             throw new IllegalStateException(
                     "Não foi possível validar as credenciais no LDAP.",
                     exception
             );
+
+        } finally {
+            if (context != null) {
+                try {
+                    context.close();
+                } catch (NamingException ignored) {
+                    // Não sobrescreve o resultado da autenticação.
+                }
+            }
         }
     }
 
