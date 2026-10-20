@@ -8,31 +8,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f803edc9-e160-48be-8cc3-c26390a0ef2e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/api/AggregationResource.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/api/HealthResource.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/api/QuestionResource.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/application/AggregationUseCase.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/application/SearchUseCase.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/domain/exception/SearchException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/domain/model/Question.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/domain/model/SearchFilter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/domain/model/SearchResult.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/infrastructure/elasticsearch/AggregationBuilder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/infrastructure/elasticsearch/QuestionRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/infrastructure/elasticsearch/SearchQueryBuilder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/infrastructure/identity/IdentityTokenValidator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/infrastructure/redis/SearchCacheRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/infrastructure/security/KerberosClientFilter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/infrastructure/security/RoleAuthorizationPolicy.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/presentation/dto/ErrorResponseDto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/presentation/dto/QuestionResponseDto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/presentation/dto/SearchRequestDto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/presentation/mapper/QuestionMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/search/SearchServiceApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/GreetingResource.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/MyLivenessCheck.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/api/HealthResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/services/search-service/src/main/java/org/enade/api/HealthResource.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
