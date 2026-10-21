@@ -4,18 +4,176 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="daa7eb85-c0f2-441b-83fb-7ff820c8a758" name="Changes" comment="" />
+    <list default="true" id="daa7eb85-c0f2-441b-83fb-7ff820c8a758" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/api/HealthResource.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/application/SimuladoExportUseCase.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/application/SimuladoGenerationUseCase.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/domain/exception/SimuladoExportException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/domain/model/ExportFormat.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/domain/model/ExportStatus.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/domain/model/Simulado.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/domain/model/SimuladoQuestion.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/infrastructure/identity/IdentityTokenValidator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/infrastructure/kafka/SimuladoExportRequestConsumer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/infrastructure/kafka/SimuladoExportRequestProducer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/infrastructure/redis/ExportStatusRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/infrastructure/search/SearchClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/infrastructure/security/KerberosClientFilter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/infrastructure/security/ProfessorAuthorizationPolicy.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/infrastructure/selection/SelectionClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/infrastructure/storage/ExportFileRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/presentation/dto/SimuladoExportRequestDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/presentation/dto/SimuladoExportResponseDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/presentation/dto/SimuladoStatusResponseDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/workers/SimuladoExportConsumer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/workers/SimuladoExportResultPublisher.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/workers/SimuladoJsonGenerator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/workers/SimuladoPdfGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_10_21_26__3_04PM__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "node.js.selected.package.tslint": "(autodetect)"
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_/home/wladyson/Downloads/AcademicPass" value="3L1Ga087R6sTZ4yPzkMykhHkIiC" />
+    </persistenceIdMap>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Wladysson"
   }
 }]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Wladysson/AcademicPass.git",
+    "accountId": "b044a797-ec18-4bba-b739-31c19fe69e45"
+  }
+}]]></component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 2,
+  "fromUser": false
+}]]></component>
+  <component name="ProjectId" id="3L1Ga087R6sTZ4yPzkMykhHkIiC" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "copilot.chat.legacySessionMetadata.migrated": "true",
+    "git-widget-placeholder": "service/simulado-service",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.jshint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.jshint": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "python.packages.toolwindow.project.migrated.to.right.top.v2": "true",
+    "to.speed.mode.migration.done": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="AcademicPass" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="AcademicPass" />
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <module name="AcademicPass" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="DEBUG_JUST_MY_CODE" value="false" />
+      <option name="RUN_TOOL" value="" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <module name="AcademicPass" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="DEBUG_JUST_MY_CODE" value="false" />
+      <option name="RUN_TOOL" value="" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-a203e0a19954-intellij.indexing.shared.core-IU-262.10968.63" />
+        <option value="bundled-js-predefined-d6986cc7102b-4abd2a77f808-JavaScript-IU-262.10968.63" />
+      </set>
+    </attachedChunks>
+  </component>
   <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="daa7eb85-c0f2-441b-83fb-7ff820c8a758" name="Changes" comment="" />
+      <created>1792614219286</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1792614219286</updated>
+    </task>
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>
