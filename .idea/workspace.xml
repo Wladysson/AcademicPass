@@ -8,6 +8,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f803edc9-e160-48be-8cc3-c26390a0ef2e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/services/question-selection-service/src/main/java/org/enade/api/QuestionSelectionResource.java" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/services/question-selection-service/src/main/java/org/enade/application/QuestionSelectionUseCase.java" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/services/question-selection-service/src/main/java/org/enade/domain/exception/SelectionException.java" afterDir="false" />
