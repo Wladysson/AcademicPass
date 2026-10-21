@@ -52,11 +52,11 @@ public class QuestionRepository {
             ) String indexName,
             @ConfigProperty(
                     name = "elasticsearch.username",
-                    defaultValue = ""
+                    defaultValue = "disabled"
             ) String username,
             @ConfigProperty(
                     name = "elasticsearch.password",
-                    defaultValue = ""
+                    defaultValue = "disabled"
             ) String password
     ) {
         this.objectMapper = objectMapper;
@@ -154,8 +154,13 @@ public class QuestionRepository {
                             objectMapper.writeValueAsString(body)
                     ));
 
-            if (!username.isBlank()) {
+            if (!username.equals("disabled")
+                    && !password.equals("disabled")
+                    && !username.isBlank()
+                    && !password.isBlank()) {
+
                 String credentials = username + ":" + password;
+
                 String encoded = java.util.Base64.getEncoder()
                         .encodeToString(
                                 credentials.getBytes(

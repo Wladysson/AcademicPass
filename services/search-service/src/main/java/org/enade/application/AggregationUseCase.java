@@ -1,13 +1,12 @@
 package org.enade.search.application;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import org.enade.search.domain.exception.SearchException;
 import org.enade.search.domain.model.SearchFilter;
 import org.enade.search.infrastructure.elasticsearch.QuestionRepository;
 import org.enade.search.infrastructure.elasticsearch.AggregationBuilder;
-
-import java.util.Map;
 
 @ApplicationScoped
 public class AggregationUseCase {
@@ -23,7 +22,7 @@ public class AggregationUseCase {
         this.aggregationBuilder = aggregationBuilder;
     }
 
-    public Map<String, Object> aggregate(SearchFilter filter) {
+    public ObjectNode aggregate(SearchFilter filter) {
         if (filter == null) {
             throw new SearchException(
                     "Os filtros para agregação são obrigatórios."
@@ -31,10 +30,9 @@ public class AggregationUseCase {
         }
 
         try {
-            Map<String, Object> aggregations =
-                    questionRepository.aggregate(filter);
-
-            return aggregationBuilder.buildResponse(aggregations);
+            return aggregationBuilder.buildResponse(
+                    questionRepository.aggregate(filter)
+            );
         } catch (SearchException exception) {
             throw exception;
         } catch (RuntimeException exception) {

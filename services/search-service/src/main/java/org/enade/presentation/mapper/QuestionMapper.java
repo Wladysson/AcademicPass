@@ -17,9 +17,6 @@ public class QuestionMapper {
         this.authorizationPolicy = authorizationPolicy;
     }
 
-    /**
-     * Converte a questão para uma resposta segura, sem gabarito ou explicação.
-     */
     public QuestionResponseDto toResponse(Question question) {
         Objects.requireNonNull(question, "A questão não pode ser nula.");
 
@@ -38,9 +35,6 @@ public class QuestionMapper {
         );
     }
 
-    /**
-     * Converte a questão conforme as permissões do usuário autenticado.
-     */
     public QuestionResponseDto toResponse(
             Question question,
             ValidatedIdentity identity
