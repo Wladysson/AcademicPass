@@ -1,4 +1,4 @@
-package br.org.enade.simulado.domain.model;
+package org.enade.simulado.domain.model;
 
 public enum ExportStatus {
 
