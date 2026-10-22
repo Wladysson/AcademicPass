@@ -1,7 +1,7 @@
-package br.org.enade.simulado.api;
+package org.enade.simulado.api;
 
-import br.org.enade.simulado.application.SimuladoGenerationUseCase;
-import br.org.enade.simulado.presentation.dto.SimuladoStatusResponseDto;
+import org.enade.simulado.application.SimuladoGenerationUseCase;
+import org.enade.simulado.presentation.dto.SimuladoStatusResponseDto;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;

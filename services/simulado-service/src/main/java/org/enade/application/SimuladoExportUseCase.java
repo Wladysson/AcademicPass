@@ -1,12 +1,12 @@
-package br.org.enade.simulado.application;
+package org.enade.simulado.application;
 
-import br.org.enade.simulado.domain.exception.SimuladoExportException;
-import br.org.enade.simulado.domain.model.ExportStatus;
-import br.org.enade.simulado.infrastructure.kafka.SimuladoExportRequestProducer;
-import br.org.enade.simulado.infrastructure.redis.ExportStatusRepository;
-import br.org.enade.simulado.infrastructure.security.ProfessorAuthorizationPolicy;
-import br.org.enade.simulado.presentation.dto.SimuladoExportRequestDto;
-import br.org.enade.simulado.presentation.dto.SimuladoExportResponseDto;
+import org.enade.simulado.domain.exception.SimuladoExportException;
+import org.enade.simulado.domain.model.ExportStatus;
+import org.enade.simulado.infrastructure.kafka.SimuladoExportRequestProducer;
+import org.enade.simulado.infrastructure.redis.ExportStatusRepository;
+import org.enade.simulado.infrastructure.security.ProfessorAuthorizationPolicy;
+import org.enade.simulado.presentation.dto.SimuladoExportRequestDto;
+import org.enade.simulado.presentation.dto.SimuladoExportResponseDto;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jboss.logging.Logger;

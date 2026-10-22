@@ -1,4 +1,4 @@
-package br.org.enade.simulado.api;
+package org.enade.simulado.api;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;

@@ -1,8 +1,8 @@
-package br.org.enade.simulado.api;
+package org.enade.simulado.api;
 
-import br.org.enade.simulado.application.SimuladoExportUseCase;
-import br.org.enade.simulado.presentation.dto.SimuladoExportRequestDto;
-import br.org.enade.simulado.presentation.dto.SimuladoExportResponseDto;
+import org.enade.simulado.application.SimuladoExportUseCase;
+import org.enade.simulado.presentation.dto.SimuladoExportRequestDto;
+import org.enade.simulado.presentation.dto.SimuladoExportResponseDto;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
