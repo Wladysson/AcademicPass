@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="daa7eb85-c0f2-441b-83fb-7ff820c8a758" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/infrastructure/search/SearchClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/infrastructure/search/SearchClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/infrastructure/identity/IdentityTokenValidator.java" beforeDir="false" afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/infrastructure/identity/IdentityTokenValidator.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
