@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="daa7eb85-c0f2-441b-83fb-7ff820c8a758" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/infrastructure/identity/IdentityTokenValidator.java" beforeDir="false" afterPath="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade/infrastructure/identity/IdentityTokenValidator.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,104 +20,68 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "Wladysson"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Wladysson&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Wladysson/AcademicPass.git",
-    "accountId": "b044a797-ec18-4bba-b739-31c19fe69e45"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Wladysson/AcademicPass.git&quot;,
+    &quot;accountId&quot;: &quot;b044a797-ec18-4bba-b739-31c19fe69e45&quot;
   }
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 2,
-  "fromUser": false
-}]]></component>
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2,
+  &quot;fromUser&quot;: false
+}</component>
   <component name="ProjectId" id="3L1Ga087R6sTZ4yPzkMykhHkIiC" />
+  <component name="ProjectSessionTemplates">
+    <option name="panelTemplate">
+      <template>
+        <option name="modeId" value="Agent" />
+        <option name="model">
+          <model>
+            <option name="modelType" value="builtin_id" />
+            <option name="modelValue" value="auto" />
+          </model>
+        </option>
+        <option name="targetType" value="BACKGROUND" />
+        <option name="worktreeMode" value="WORKSPACE" />
+      </template>
+    </option>
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "copilot.chat.legacySessionMetadata.migrated": "true",
-    "git-widget-placeholder": "service/simulado-service",
-    "junie.onboarding.icon.badge.shown": "true",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.jshint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.jshint": "",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "python.packages.toolwindow.project.migrated.to.right.top.v2": "true",
-    "to.speed.mode.migration.done": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;copilot.chat.legacySessionMetadata.migrated&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;service/simulado-service&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.jshint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.jshint&quot;: &quot;&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;python.packages.toolwindow.project.migrated.to.right.top.v2&quot;: &quot;true&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/services/simulado-service/src/main/java/org/enade" />
     </key>
-  </component>
-  <component name="RunManager">
-    <configuration default="true" type="JetRunConfigurationType">
-      <module name="AcademicPass" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <module name="AcademicPass" />
-      <option name="filePath" />
-      <method v="2" />
-    </configuration>
-    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
-      <module name="AcademicPass" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="DEBUG_JUST_MY_CODE" value="false" />
-      <option name="RUN_TOOL" value="" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration default="true" type="Tox" factoryName="Tox">
-      <module name="AcademicPass" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="DEBUG_JUST_MY_CODE" value="false" />
-      <option name="RUN_TOOL" value="" />
-      <method v="2" />
-    </configuration>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
