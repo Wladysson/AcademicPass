@@ -1,0 +1,19 @@
+# Framework HTTP e servidor ASGI
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.30,<1.0
+
+# Validação e gerenciamento de configurações
+pydantic>=2.9,<3.0
+pydantic-settings>=2.6,<3.0
+
+# Cliente HTTP para download de documentos
+httpx>=0.27,<1.0
+
+# Armazenamento de PDFs no MinIO
+minio>=7.2,<8.0
+
+# Comunicação com Apache Kafka
+confluent-kafka>=2.6,<3.0
+
+# Métricas e observabilidade
+prometheus-client>=0.21,<1.0
