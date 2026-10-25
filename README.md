@@ -59,7 +59,7 @@ A autenticação dos usuários é centralizada no `identity-service`, que integr
 Dessa forma, a arquitetura separa claramente as responsabilidades do sistema: o Python atende à coleta e ao processamento dos PDFs, o Kafka coordena a comunicação assíncrona entre os serviços, o Elasticsearch viabiliza a busca distribuída, o Redis otimiza consultas e sessões, enquanto o Java com Quarkus concentra as APIs, a segurança e as regras de negócio.
 
 <p align="center">
-  <img src="./docs/imagens/diagramas/principal.png">
+  <img src="./docs/imagens/diagramas/all.png">
 </p>
 
 ---
@@ -136,3 +136,16 @@ cada camada tem suas imagens e explicaçao em suas devidas configurações.
 > Nota: Os padrões apresentados nesta seção representam apenas os principais conceitos arquiteturais utilizados no desenvolvimento. A documentação completa de cada domínio pode conter outros padrões e estratégias específicas. Para conhecer as demais implementações, consulte os links disponíveis nas respectivas seções e documentações das suas respectivas camadas.
 
 ---
+
+
+#### Segurança 
+
+<p align="center">
+  <img src="./docs/imagens/diagramas/security.png">
+</p>
+
+#### Teste
+
+<p align="center">
+  <img src="./docs/imagens/diagramas/teste.png">
+</p>
