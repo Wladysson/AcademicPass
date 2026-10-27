@@ -8,10 +8,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f803edc9-e160-48be-8cc3-c26390a0ef2e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/services/question-selection-service/src/main/java/org/enade/api/SelectionExceptionMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/question-selection-service/src/main/java/org/enade/domain/model/SelectionException.java" beforeDir="false" afterPath="$PROJECT_DIR$/services/question-selection-service/src/main/java/org/enade/domain/model/SelectedQuestion.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/question-selection-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/services/question-selection-service/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,7 +75,6 @@
     &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;copilot.chat.legacySessionMetadata.migrated&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;service/question-selection-service&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
