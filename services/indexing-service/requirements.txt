@@ -1,0 +1,20 @@
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.30,<1.0
+
+# Configuração e validação
+pydantic>=2.9,<3.0
+pydantic-settings>=2.5,<3.0
+python-dotenv>=1.0,<2.0
+
+# Kafka
+confluent-kafka>=2.6,<3.0
+
+# Elasticsearch
+elasticsearch>=8.15,<9.0
+
+# Política de repetição e transporte
+elastic-transport>=8.15,<9.0
+
+# Métricas Prometheus
+prometheus-client>=0.21,<1.0
+```
