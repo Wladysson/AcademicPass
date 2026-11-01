@@ -1,7 +1,7 @@
 package org.enade.simulado.infrastructure.security;
 
 import org.enade.simulado.domain.exception.SimuladoExportException;
-import org.enade.simulado.infrastructure.identity.IdentityTokenValidator;
+import org.enade.infrastructure.identity.IdentityTokenValidator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
