@@ -3,7 +3,6 @@ package org.enade.simulado.workers;
 import org.enade.simulado.application.SimuladoGenerationUseCase;
 import org.enade.simulado.domain.exception.SimuladoExportException;
 import org.enade.simulado.domain.model.Simulado;
-import org.enade.simulado.infrastructure.kafka.SimuladoExportResultPublisher;
 import org.enade.simulado.presentation.dto.SimuladoExportRequestDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;

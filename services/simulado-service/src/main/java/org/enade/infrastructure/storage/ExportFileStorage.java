@@ -11,7 +11,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 @ApplicationScoped
-public class ExportFileRepository {
+public class ExportFileStorage {
 
     private static final Logger LOG =
             Logger.getLogger(ExportFileStorage.class);
