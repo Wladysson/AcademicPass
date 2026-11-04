@@ -192,7 +192,7 @@ Essa decisão reduz o volume trafegado no Kafka, evita duplicação do arquivo e
   <img src="./docs/imagens/diagramas/ingestion.png">
 </p>
 
-> **Documento relacionado:** [Ingestão e MinIO](./services/ingestion-service/README.md)
+> **Anexo:** [Ingestão e MinIO](./services/ingestion-service/README.md)
 
 ---
 
@@ -239,7 +239,68 @@ A DLQ permite que a equipe analise a causa da falha sem comprometer o avanço do
   <img src="./docs/imagens/diagramas/kafka-flow.png">
 </p>
 
-> **Documento relacionado:** [Mensageria e Kafka](./docs/messaging/overview.md)
+> **Anexo:** [Mensageria e Kafka](./docs/messaging/overview.md)
+
+---
+
+## 🧠 Processamento e Estruturação de Documentos
+
+### Extração com PyMuPDF
+
+O `extraction-service` consome os eventos de PDFs descobertos e utiliza o PyMuPDF para realizar a leitura estrutural dos documentos.
+
+O processamento não se limita à extração simples de texto. O serviço percorre páginas, blocos, linhas, elementos visuais e metadados do PDF para reconstruir a organização lógica do documento.
+
+Durante essa etapa, o serviço identifica:
+
+- Páginas e limites de questões;
+- Enunciados;
+- Alternativas;
+- Blocos de texto;
+- Fórmulas;
+- Tabelas;
+- Diagramas e elementos visuais;
+- Metadados contextuais, como área, curso, ano e competências.
+
+### Segmentação de questões
+
+A segmentação é uma das etapas mais críticas do pipeline, pois os PDFs do ENADE possuem layouts heterogêneos, diferentes formas de diagramação e conteúdos distribuídos de maneiras variadas.
+
+O `extraction-service` aplica heurísticas estruturais para identificar o início e o fim de cada questão, associando enunciado, alternativas, elementos visuais e metadados ao mesmo registro lógico.
+
+Cada questão é classificada conforme seu tipo:
+
+| Tipo | Descrição |
+|---|---|
+| `OBJETIVA` | Questão com alternativas e resposta única esperada. |
+| `DISCURSIVA` | Questão que exige resposta dissertativa ou análise textual. |
+| `ANULADA` | Questão invalidada ou sem aproveitamento no contexto da prova. |
+
+### Conversão de conteúdos complexos
+
+Conteúdos que não podem ser representados adequadamente como texto simples passam por transformações específicas.
+
+| Conteúdo original | Representação estruturada |
+|---|---|
+| Fórmulas matemáticas | LaTeX |
+| Tabelas | Markdown |
+| Diagramas e fluxogramas | Mermaid |
+| Imagens e elementos visuais | Referência, descrição e metadados |
+| Texto fragmentado | Blocos normalizados e ordenados |
+
+### Google AI Studio
+
+Quando o conteúdo apresenta alta complexidade como diagramas pouco legíveis, fórmulas compostas ou elementos visuais ambíguos o serviço pode utilizar uma API externa de LLM multimodal de forma assistiva.
+
+O uso do LLM não substitui o processamento determinístico do pipeline. Ele atua como apoio para interpretação de conteúdos complexos, sempre preservando rastreabilidade, validação e possibilidade de revisão humana.
+
+<p align="center">
+  <img src="./docs/imagens/diagramas/extraction.png">
+</p>
+
+> **Anexo:** [Extração e estruturação](./services/extraction-service/README.md)
+
+---
 
 
 
