@@ -362,11 +362,62 @@ O uso de aliases permite trocar a versão ativa do índice sem interromper o `se
   <img src="./docs/imagens/diagramas/indexing.png">
 </p>
 
-> **Documento relacionado:** [Indexação e Elasticsearch](./services/indexing-service/README.md)
+> **Anexo:** [Indexação e Elasticsearch](./services/indexing-service/README.md)
 
 ---
 
+## ⚡ Consulta, Cache e Sessão
 
+### API de busca com Java e Quarkus
+
+O `search-service` é implementado em Java com Quarkus e expõe a API REST responsável pelas consultas ao acervo estruturado.
+
+Esse serviço recebe requisições do frontend por meio do `api-gateway`, valida o contexto de autenticação, interpreta os filtros recebidos e executa as consultas no Elasticsearch.
+
+As consultas suportam:
+
+- Busca full-text;
+- Filtros combináveis;
+- Paginação;
+- Ordenação por relevância;
+- Agregações;
+- Highlight;
+- Restrições por perfil de usuário.
+
+### Redis como camada de baixa latência
+
+O Redis é utilizado para reduzir a latência de operações frequentes e manter informações temporárias associadas à sessão do usuário.
+
+Ele não substitui o Elasticsearch como fonte de busca nem o MinIO como fonte dos documentos originais. Sua função é otimizar acessos recorrentes e preservar estado de curta duração.
+
+| Uso do Redis | Finalidade |
+|---|---|
+| Cache de buscas frequentes | Reduz consultas repetidas ao Elasticsearch. |
+| Sessões de autenticação | Mantém o contexto autenticado do usuário. |
+| Lista de questões selecionadas | Preserva o estado de seleção durante a navegação. |
+| Controle de operações temporárias | Suporta fluxos como geração e acompanhamento de simulados. |
+
+### Política de expiração e invalidação
+
+Os dados armazenados no Redis possuem TTL, garantindo que informações temporárias não permaneçam indefinidamente em memória.
+
+A invalidação é aplicada quando:
+
+- A sessão do usuário é encerrada;
+- O usuário altera sua seleção de questões;
+- O resultado de uma busca deixa de ser válido;
+- O contexto de autenticação é renovado;
+- Uma operação assíncrona é concluída.
+
+Essa estratégia equilibra performance, consumo de memória e consistência do estado apresentado ao usuário.
+
+<p align="center">
+  <img src="./docs/imagens/diagramas/api.png">
+</p>
+
+> **Anexo:** [Busca, cache e sessão](./services/search-service/README.md)
+
+---
 
 
 
