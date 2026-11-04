@@ -419,7 +419,46 @@ Essa estratégia equilibra performance, consumo de memória e consistência do e
 
 ---
 
+## 🔐 Segurança, Identidade e Comunicação Protegida
 
+### Autenticação centralizada
+
+A autenticação dos usuários é centralizada no `identity-service`, que valida credenciais por meio do OpenLDAP e emite o contexto de sessão utilizado pelos demais serviços.
+
+### Perfis de acesso
+
+A plataforma utiliza perfis funcionais para controlar o acesso às funcionalidades.
+
+| Perfil | Capacidades principais |
+|---|---|
+| `STUDENT` | Busca de questões, aplicação de filtros, seleção de questões e geração de simulados. |
+| `PROFESSOR` | Acesso ampliado a gabaritos, metadados, painéis e exportações autorizadas. |
+
+A autorização é aplicada tanto na camada de API quanto na lógica de negócio, impedindo que um usuário acesse recursos fora do escopo do seu perfil.
+
+### Kerberos, SASL e GSSAPI
+
+A comunicação entre Kafka, Elasticsearch e microsserviços é protegida por MIT Kerberos.
+
+O Kerberos utiliza principals, keytabs e autenticação mútua para garantir que apenas componentes autorizados consigam interagir com os serviços protegidos. A integração é realizada por meio de SASL/GSSAPI, que estabelece o contexto de segurança durante a comunicação.
+
+Essa abordagem evita que serviços internos dependam apenas de credenciais simples ou conexões não autenticadas, reduzindo a superfície de ataque da plataforma.
+
+### Princípios de segurança
+
+- Nenhum segredo deve ser versionado no repositório.
+- Keytabs, senhas, tokens e credenciais devem ser fornecidos por mecanismos seguros.
+- Logs não devem conter informações sensíveis.
+- Cada serviço deve utilizar o princípio do menor privilégio.
+- Alterações em autenticação, autorização ou criptografia exigem revisão técnica adicional.
+
+<p align="center">
+  <img src="./docs/imagens/diagramas/security.png">
+</p>
+
+> **Anexo:** [Segurança e Kerberos](./docs/security/overview.md)
+
+---
 
 
 
