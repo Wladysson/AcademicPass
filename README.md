@@ -302,7 +302,69 @@ O uso do LLM não substitui o processamento determinístico do pipeline. Ele atu
 
 ---
 
+## 🔎 Indexação Distribuída no Elasticsearch
 
+### Papel do `indexing-service`
+
+O `indexing-service` consome os eventos de questões estruturadas publicados no Kafka e realiza a indexação no Elasticsearch.
+
+Esse serviço é responsável por transformar as questões estruturadas em documentos pesquisáveis, aplicando o mapping adequado, normalizando campos e garantindo que as informações estejam disponíveis para busca, filtros, agregações e destaque de resultados.
+
+### Organização dos índices
+
+O Elasticsearch organiza o acervo em índices por domínio e versão de estrutura. Essa separação permite evoluir o modelo de dados sem comprometer consultas existentes.
+
+Cada documento indexado pode conter informações como:
+
+| Categoria | Campo / Informação | Finalidade na plataforma |
+|---|---|---|
+| **Identificação** | `question_id` | Identificador único da questão estruturada. |
+| **Identificação** | `document_id` | Referência ao documento de origem no pipeline. |
+| **Conteúdo** | Enunciado | Texto principal utilizado para busca full-text. |
+| **Conteúdo** | Alternativas | Opções apresentadas em questões objetivas. |
+| **Classificação** | Tipo de questão | Diferencia questões objetivas, discursivas e anuladas. |
+| **Classificação** | Área | Permite filtragem e agregação por domínio do conhecimento. |
+| **Classificação** | Curso | Contextualiza a questão conforme o curso de origem. |
+| **Classificação** | Ano | Permite filtros temporais e análises históricas. |
+| **Classificação** | Competências | Relaciona a questão às competências avaliadas. |
+| **Conteúdo estruturado** | Fórmulas em LaTeX | Preserva expressões matemáticas de forma pesquisável e renderizável. |
+| **Conteúdo estruturado** | Tabelas em Markdown | Mantém dados tabulares de forma estruturada. |
+| **Conteúdo estruturado** | Diagramas em Mermaid | Representa fluxogramas e estruturas visuais de forma textual. |
+| **Proveniência** | Referência ao PDF original no MinIO | Garante rastreabilidade entre a questão indexada e o arquivo bruto. |
+| **Metadados** | Metadados de processamento | Registra informações como origem, versão do processador e timestamp. |
+
+### Busca full-text em português
+
+O Elasticsearch atua como camada de busca distribuída da plataforma. Ele permite consultas full-text sobre enunciados, alternativas e conteúdos relacionados, com suporte a análise em português.
+
+As capacidades de busca incluem:
+
+| Capacidade | Descrição técnica | Benefício para o usuário |
+|---|---|---|
+| **Tokenização e normalização textual** | Divide o texto em termos e aplica normalizações antes da indexação e da consulta. | Permite que variações de escrita e formação de palavras sejam tratadas durante a busca. |
+| **Radicalização de termos** | Reduz palavras às suas raízes morfológicas durante a análise textual. | Aumenta o alcance da busca, relacionando termos como “questão”, “questões” e “questionário”. |
+| **Suporte a sinônimos** | Associa termos equivalentes ou semanticamente próximos. | Melhora a recuperação de questões mesmo quando o usuário utiliza vocabulário diferente do documento original. |
+| **Cálculo de relevância** | Ordena os resultados conforme a aderência entre a consulta e os documentos indexados. | Apresenta primeiro as questões mais aderentes ao termo ou tema pesquisado. |
+| **Filtros estruturados** | Restringe resultados por campos como ano, área, curso, tipo de questão e competências. | Permite refinar a busca e reduzir o escopo dos resultados. |
+| **Agregações** | Calcula distribuições e resumos sobre os resultados, como contagem por área ou ano. | Viabiliza análises exploratórias e painéis sobre o acervo. |
+| **Paginação** | Divide os resultados em páginas controladas pela API. | Garante consultas leves e navegáveis mesmo em resultados extensos. |
+| **Highlight de trechos** | Destaca os fragmentos dos documentos que corresponderam à consulta. | Facilita a identificação do trecho relevante dentro do enunciado ou das alternativas. |
+
+Dessa forma, uma busca por um conceito, tema, disciplina ou palavra-chave consegue retornar questões relevantes mesmo quando o termo pesquisado não aparece exatamente igual ao texto original.
+
+### Atualização e reindexação
+
+A indexação é tratada como um processo evolutivo. Quando o modelo de dados, o analisador ou a estratégia de extração é alterado, novos índices podem ser criados e validados antes de substituírem os índices anteriores.
+
+O uso de aliases permite trocar a versão ativa do índice sem interromper o `search-service`, reduzindo o impacto de reindexações e facilitando rollback em caso de inconsistências.
+
+<p align="center">
+  <img src="./docs/imagens/diagramas/indexing.png">
+</p>
+
+> **Documento relacionado:** [Indexação e Elasticsearch](./services/indexing-service/README.md)
+
+---
 
 
 
