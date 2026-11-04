@@ -134,6 +134,8 @@ As imagens abaixo representam diferentes estágios de desenvolvimento e teste e 
 
 Os diagramas têm como objetivo facilitar a compreensão das interações entre as funcionalidades, infraestrutura e componentes do mesmo, servindo também como referência durante o desenvolvimento e evolução da arquitetura.
 
+> **Documentação viva:** esta documentação encontra-se em evolução contínua e pode sofrer alterações conforme novos componentes, modelos são implementados.
+
 > Os screenshots são intencionalmente apresentados como evidência de implementação em vez de estarem atrelados a uma categoria específica de documentação. No entanto, 
 cada camada tem suas imagens e explicaçao em suas devidas configurações.
 
@@ -141,15 +143,128 @@ cada camada tem suas imagens e explicaçao em suas devidas configurações.
 
 ---
 
+## Backend e Pontos de Estrutura
 
-#### Segurança 
+>**PARTE A SER TRATADA AQ**
+
+O AcademicPass implementa uma arquitetura orientada a eventos, na qual cada etapa do ciclo de vida do documento possui um serviço especializado, um contrato de entrada e saída e uma responsabilidade técnica bem delimitada.
+
+A plataforma não trata o PDF apenas como um arquivo a ser armazenado. Cada documento é conduzido por um pipeline de transformação progressiva: ele é descoberto, validado, persistido, processado, estruturado, indexado e disponibilizado para consulta. Essa separação permite que cada camada evolua de forma independente, seja reprocessada sem impactar as demais e seja observada de maneira isolada.
+
+
+Cada etapa é desacoplada por meio do Apache Kafka, que atua como backbone de mensageria da plataforma. Dessa forma, a indisponibilidade temporária de um consumidor não interrompe a produção de eventos, permitindo que o pipeline continue operando e que os dados sejam processados posteriormente.
+
+---
+
+## 📥 Ingestão e Persistência de Documentos
+
+### Coleta e validação no `ingestion-service`
+
+O `ingestion-service` é responsável pela primeira etapa do ciclo de vida do dado: a descoberta, validação e disponibilização dos PDFs do acervo ENADE.
+
+Esse serviço recebe documentos como provas, gabaritos e diretrizes, aplica validações iniciais e garante que apenas arquivos íntegros avancem para as etapas posteriores do pipeline. A validação considera aspectos como existência do arquivo, integridade do PDF, metadados obrigatórios e consistência das informações de origem.
+
+### Persistência no MinIO
+
+Após a validação, o PDF original é persistido no MinIO, que atua como camada de object storage da plataforma.
+
+O MinIO é utilizado como fonte de verdade dos artefatos brutos. Isso significa que o arquivo original permanece disponível mesmo após o processamento, permitindo reprocessamento, auditoria, recuperação e evolução das estratégias de extração sem depender exclusivamente do conteúdo estruturado gerado anteriormente.
+
+Cada objeto armazenado é referenciado por metadados que incluem:
+
+- Identificador único do documento;
+- Nome e caminho do objeto;
+- Checksum de integridade;
+- Origem do arquivo;
+- Tipo de documento;
+- Timestamp de ingestão;
+- Metadados de contexto, quando disponíveis.
+
+### Publicação do evento de descoberta
+
+Após a persistência no MinIO, o `ingestion-service` publica um evento no Apache Kafka indicando que um novo documento está disponível para processamento.
+
+O evento não transporta o conteúdo binário do PDF. Em vez disso, ele carrega a referência ao objeto armazenado no MinIO, os metadados de ingestão e o identificador de correlação utilizado para rastrear a execução ponta a ponta.
+
+Essa decisão reduz o volume trafegado no Kafka, evita duplicação do arquivo em diferentes componentes e mantém o MinIO como fonte autoritativa do documento original.
 
 <p align="center">
-  <img src="./docs/imagens/diagramas/security.png">
+  <img src="./docs/imagens/diagramas/ingestion.png">
 </p>
 
-#### Teste
+> **Documento relacionado:** [Ingestão e MinIO](./services/ingestion-service/README.md)
+
+---
+
+## 🧵 Mensageria e Arquitetura de Comunicação
+
+O Apache Kafka é o componente responsável por desacoplar as etapas do pipeline e coordenar a comunicação assíncrona entre os microsserviços.
+
+Em vez de o `ingestion-service` chamar diretamente o `extraction-service`, e este chamar diretamente o `indexing-service`, cada serviço publica eventos em tópicos específicos. Os consumidores leem esses tópicos conforme sua responsabilidade e avançam o processamento de forma independente.
+
+Essa estratégia oferece três benefícios principais:
+
+- **Desacoplamento temporal:** o produtor não precisa esperar a conclusão do consumidor.
+- **Tolerância a falhas:** se um consumidor estiver indisponível, os eventos permanecem no tópico.
+- **Escalabilidade:** consumidores podem ser replicados para aumentar a capacidade de processamento.
+
+### Organização dos tópicos
+
+Os tópicos são organizados por domínio e finalidade, permitindo separar eventos de descoberta, processamento, indexação e geração de simulados.
+
+| Tópico | Produtor | Consumidor | Finalidade |
+|---|---|---|---|
+| `documents.discovered` | `ingestion-service` | `extraction-service` | Notifica a existência de um PDF validado e persistido. |
+| `questions.structured` | `extraction-service` | `indexing-service` | Transporta questões estruturadas para indexação. |
+| `questions.indexed` | `indexing-service` | Monitoramento | Confirma a indexação no Elasticsearch. |
+| `simulados.requested` | `simulado-service` | Serviço de processamento | Solicita a geração assíncrona de um simulado. |
+| `simulados.completed` | Serviço de processamento | `simulado-service` | Informa a conclusão e a localização do artefato. |
+| `processing.failed` | Consumidores do pipeline | DLQ / monitoramento | Registra falhas não recuperáveis ou esgotadas após retries. |
+
+### Semântica de entrega e idempotência
+
+O pipeline adota entrega **at-least-once**, garantindo que um evento publicado no Kafka seja processado pelo consumidor. Como consequência, o mesmo evento pode ser entregue mais de uma vez em cenários de reinício, falha de rede ou reprocessamento.
+
+Por esse motivo, todos os consumidores devem implementar idempotência.
+
+No `indexing-service`, por exemplo, o processamento repetido de um mesmo evento não deve gerar múltiplas entradas no Elasticsearch. A idempotência é garantida por meio de identificadores determinísticos, como `document_id` e `question_id`, que permitem atualizar ou substituir o documento indexado em vez de criar duplicidades.
+
+### Reprocessamento e DLQ
+
+Eventos que falham temporariamente podem ser reprocessados por meio de retries controlados. Já eventos que apresentam falha definitiva — como PDF corrompido, formato inválido ou inconsistência estrutural — são encaminhados para uma Dead Letter Queue (DLQ).
+
+A DLQ permite que a equipe analise a causa da falha sem comprometer o avanço do pipeline. Dessa forma, mensagens problemáticas não bloqueiam o consumo das demais mensagens válidas.
 
 <p align="center">
-  <img src="./docs/imagens/diagramas/teste.png">
+  <img src="./docs/imagens/diagramas/kafka-flow.png">
 </p>
+
+> **Documento relacionado:** [Mensageria e Kafka](./docs/messaging/overview.md)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
