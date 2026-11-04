@@ -60,11 +60,11 @@ No caminho de consulta, o `search-service`, implementado em [Java](https://www.j
 
 A autenticação dos usuários é centralizada no `identity-service`, que integra o [OpenLDAP](https://www.openldap.org/) para validação de credenciais e gestão dos perfis STUDENT e PROFESSOR. A comunicação entre Kafka, Elasticsearch e microsserviços é protegida por [MIT Kerberos](https://web.mit.edu/kerberos/), utilizando autenticação mútua baseada em principals, keytabs e SASL/GSSAPI.
 
-Dessa forma, a arquitetura separa claramente as responsabilidades do sistema: o Python atende à coleta e ao processamento dos PDFs, o Kafka coordena a comunicação assíncrona entre os serviços, o Elasticsearch viabiliza a busca distribuída, o Redis otimiza consultas e sessões, enquanto o Java com Quarkus concentra as APIs, a segurança e as regras de negócio.
-
 <p align="center">
   <img src="./docs/imagens/diagramas/all.png">
 </p>
+
+Dessa forma, a arquitetura separa claramente as responsabilidades do sistema: o Python atende à coleta e ao processamento dos PDFs, o Kafka coordena a comunicação assíncrona entre os serviços, o Elasticsearch viabiliza a busca distribuída, o Redis otimiza consultas e sessões, enquanto o Java com Quarkus concentra as APIs, a segurança e as regras de negócio.
 
 ---
 
@@ -460,7 +460,57 @@ Essa abordagem evita que serviços internos dependam apenas de credenciais simpl
 
 ---
 
+## 📈 Observabilidade e Validação Operacional
 
+A observabilidade da plataforma é construída para permitir acompanhar não apenas se os serviços estão disponíveis, mas também como o pipeline está se comportando em cada etapa.
+
+### Prometheus e Grafana
+
+O Prometheus coleta métricas dos microsserviços e componentes de infraestrutura, enquanto o Grafana concentra os dashboards utilizados para análise operacional.
+
+Os principais indicadores acompanhados incluem:
+
+| Indicador | Finalidade |
+|---|---|
+| Latência das APIs | Avaliar o tempo de resposta do `search-service` e demais endpoints. |
+| Taxa de erros HTTP | Identificar falhas e instabilidade nas APIs. |
+| Consumer lag do Kafka | Detectar atraso no processamento assíncrono. |
+| Eventos processados | Acompanhar o volume tratado por cada serviço. |
+| Documentos indexados | Medir o progresso da indexação no Elasticsearch. |
+| Falhas de extração | Monitorar a qualidade do processamento dos PDFs. |
+| Uso de cache | Avaliar a efetividade do Redis. |
+| Disponibilidade dos serviços | Verificar a saúde geral da plataforma. |
+
+### Health checks
+
+Cada microsserviço expõe health checks que permitem verificar sua disponibilidade e o estado das dependências críticas.
+
+Um health check deve refletir não apenas se o processo está em execução, mas também se o serviço consegue acessar seus componentes essenciais, como Kafka, Elasticsearch, Redis, MinIO ou LDAP.
+
+### Logs estruturados
+
+Os logs são estruturados para permitir busca, filtragem e correlação entre serviços.
+
+Cada registro operacional deve incluir, quando aplicável:
+
+- Serviço responsável;
+- Nível de log;
+- Timestamp;
+- `correlation_id`;
+- Identificador do documento ou questão;
+- Etapa do pipeline;
+- Mensagem técnica;
+- Contexto de erro, quando aplicável.
+
+Dessa forma, é possível acompanhar a jornada de um documento desde a ingestão até a indexação, identificando onde ocorreram falhas ou gargalos.
+
+<p align="center">
+  <img src="./docs/imagens/diagramas/observability.png">
+</p>
+
+> **Anexo:** [Observabilidade e monitoramento](./docs/observability/overview.md)
+
+---
 
 
 
