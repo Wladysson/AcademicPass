@@ -45,8 +45,9 @@
 > **Documentação viva:** esta documentação encontra-se em evolução contínua e pode sofrer alterações conforme novos componentes, modelos são implementados.
 
 ---
+<br>
 
-## 📖 Visão Geral
+# 📖 Visão Geral
 
 O projeto tem como objetivo principal a construção de uma plataforma distribuída de busca e indexação sobre o acervo histórico de provas do ENADE.
 
@@ -143,7 +144,7 @@ cada camada tem suas imagens e explicaçao em suas devidas configurações.
 
 ---
 
-## Backend e Pontos de Estrutura
+# Backend e Pontos de Estrutura
 
 >**PARTE A SER TRATADA AQ**
 
@@ -155,8 +156,10 @@ A plataforma não trata o PDF apenas como um arquivo a ser armazenado. Cada docu
 Cada etapa é desacoplada por meio do Apache Kafka, que atua como backbone de mensageria da plataforma. Dessa forma, a indisponibilidade temporária de um consumidor não interrompe a produção de eventos, permitindo que o pipeline continue operando e que os dados sejam processados posteriormente.
 
 ---
+---
+<br>
 
-## 📥 Ingestão e Persistência de Documentos
+# 📥 Ingestão e Persistência de Documentos
 
 ### Coleta e validação no `ingestion-service`
 
@@ -195,8 +198,10 @@ Essa decisão reduz o volume trafegado no Kafka, evita duplicação do arquivo e
 > **Anexo:** [Ingestão e MinIO](./services/ingestion-service/README.md)
 
 ---
+---
+<br>
 
-## 🧵 Mensageria e Arquitetura de Comunicação
+# 🧵 Mensageria e Arquitetura de Comunicação
 
 O Apache Kafka é o componente responsável por desacoplar as etapas do pipeline e coordenar a comunicação assíncrona entre os microsserviços.
 
@@ -242,8 +247,10 @@ A DLQ permite que a equipe analise a causa da falha sem comprometer o avanço do
 > **Anexo:** [Mensageria e Kafka](./docs/messaging/overview.md)
 
 ---
+---
+<br>
 
-## 🧠 Processamento e Estruturação de Documentos
+# 🧠 Processamento e Estruturação de Documentos
 
 ### Extração com PyMuPDF
 
@@ -301,8 +308,10 @@ O uso do LLM não substitui o processamento determinístico do pipeline. Ele atu
 > **Anexo:** [Extração e estruturação](./services/extraction-service/README.md)
 
 ---
+---
+<br>
 
-## 🔎 Indexação Distribuída no Elasticsearch
+# 🔎 Indexação Distribuída no Elasticsearch
 
 ### Papel do `indexing-service`
 
@@ -365,8 +374,10 @@ O uso de aliases permite trocar a versão ativa do índice sem interromper o `se
 > **Anexo:** [Indexação e Elasticsearch](./services/indexing-service/README.md)
 
 ---
+---
+<br>
 
-## ⚡ Consulta, Cache e Sessão
+# ⚡ Consulta, Cache e Sessão
 
 ### API de busca com Java e Quarkus
 
@@ -418,8 +429,10 @@ Essa estratégia equilibra performance, consumo de memória e consistência do e
 > **Anexo:** [Busca, cache e sessão](./services/search-service/README.md)
 
 ---
+---
+<br>
 
-## 🔐 Segurança, Identidade e Comunicação Protegida
+# 🔐 Segurança, Identidade e Comunicação Protegida
 
 ### Autenticação centralizada
 
@@ -459,10 +472,59 @@ Essa abordagem evita que serviços internos dependam apenas de credenciais simpl
 > **Anexo:** [Segurança e Kerberos](./docs/security/overview.md)
 
 ---
+---
+<br>
 
+# 🐳 Infraestrutura e Contêineres
 
+A execução da plataforma é baseada em contêineres Docker, organizados por meio do Docker Compose. Cada componente da arquitetura é executado como um serviço isolado, com responsabilidade única, configuração própria, ciclo de vida independente e interfaces de comunicação explicitamente definidas.
 
-## 📈 Observabilidade e Validação Operacional
+O Docker Compose descreve serviços, redes, volumes, variáveis de ambiente, dependências e health checks em uma definição declarativa, permitindo criar e iniciar toda a stack por meio de um único comando.
+
+A conteinerização garante que o comportamento da plataforma seja previsível entre ambientes, reduzindo diferenças entre execução local, homologação e deploy. Além disso, permite que cada microsserviço seja construído, versionado, escalado e substituído de forma independente.
+
+### Princípios de Conteinerização
+
+A estrutura de contêineres do AcademicPass segue os seguintes princípios:
+
+| Princípio | Aplicação na plataforma |
+|---|---|
+| **Um processo por contêiner** | Cada microsserviço e componente de infraestrutura possui um contêiner próprio, evitando acoplamento entre responsabilidades. |
+| **Imutabilidade** | As imagens são construídas de forma versionada e não devem ser alteradas após a publicação. |
+| **Configuração externa** | Configurações, variáveis de ambiente e segredos são injetados em tempo de execução, não embutidos na imagem. |
+| **Persistência controlada** | Dados que precisam sobreviver à reinicialização são armazenados em volumes nomeados. |
+| **Comunicação por rede interna** | Os serviços se comunicam por redes Docker, utilizando os nomes dos serviços como referência de DNS. |
+| **Observabilidade nativa** | Os contêineres expõem health checks, logs e métricas para monitoramento. |
+| **Menor superfície de ataque** | As imagens devem ser mínimas, baseadas em fontes confiáveis e executadas sem privilégios desnecessários. |
+
+Cada contêiner deve ter uma única preocupação bem definida. Essa separação facilita escalabilidade horizontal, depuração, manutenção e reutilização dos componentes.
+
+<p align="center">
+  <img src="./docs/imagens/diagramas/observability.png">
+</p>
+
+### Health Checks e Ordem de Inicialização
+
+Health checks definem quando um contêiner deve ser considerado saudável, e não apenas quando seu processo foi iniciado. No Docker Compose, é possível definir comando, intervalo, timeout, período inicial e número de tentativas para cada serviço.
+
+A plataforma utiliza health checks para evitar que microsserviços sejam iniciados antes de suas dependências estarem prontas.
+
+| Dependência | Health check esperado | Impacto na inicialização |
+|---|---|---|
+| Kafka | Verificação de disponibilidade do broker. | Serviços produtores e consumidores aguardam o broker saudável. |
+| Elasticsearch | Verificação do cluster e da API HTTP. | `indexing-service` e `search-service` aguardam o Elasticsearch. |
+| Redis | Verificação de conectividade e resposta ao comando de ping. | Serviços que utilizam sessão ou cache aguardam o Redis. |
+| MinIO | Verificação da API de object storage. | `ingestion-service` e `simulado-service` aguardam o MinIO. |
+| OpenLDAP | Verificação de disponibilidade do diretório. | `identity-service` aguarda o LDAP. |
+| Kerberos KDC | Verificação da disponibilidade do KDC. | Serviços protegidos aguardam o KDC antes de estabelecer comunicação segura. |
+
+A diretiva `depends_on` com `condition: service_healthy` permite que o Compose aguarde a saúde real da dependência antes de iniciar o serviço dependente, evitando falhas de inicialização por indisponibilidade temporária de Kafka, Elasticsearch, Redis ou outros componentes.
+
+---
+---
+<br>
+
+# 📈 Observabilidade e Validação Operacional
 
 A observabilidade da plataforma é construída para permitir acompanhar não apenas se os serviços estão disponíveis, mas também como o pipeline está se comportando em cada etapa.
 
@@ -513,8 +575,10 @@ Dessa forma, é possível acompanhar a jornada de um documento desde a ingestão
 > **Anexo:** [Observabilidade e monitoramento](./docs/observability/overview.md)
 
 ---
+---
+<br>
 
-## 🧪 Testes e Qualidades
+# 🧪 Testes e Qualidades
 
 A validação do AcademicPass não se limita ao teste unitário de funções isoladas. Como o sistema é distribuído e orientado a eventos, a estratégia de testes precisa cobrir integração entre serviços, persistência, mensageria, busca e comportamento sob carga.
 
@@ -544,6 +608,11 @@ A validação do AcademicPass não se limita ao teste unitário de funções iso
 > **Anexo:** [Estratégia de testes](./docs/testing/overview.md)
 
 ---
+---
+<br>
+
+
+
 
 
 
