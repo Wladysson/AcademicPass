@@ -37,6 +37,10 @@
   <img src="https://img.shields.io/badge/Monitoring-Observability-blue.svg" alt="Observability"/>
 </p>
 
+<p align="center">
+  <a href="./docs/orientacion/principal.md">Orientações</a> • <a href=".">Video</a>
+</p>
+
 
 > **Documentação viva:** esta documentação encontra-se em evolução contínua e pode sofrer alterações conforme novos componentes, modelos são implementados.
 
