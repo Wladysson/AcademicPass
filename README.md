@@ -460,6 +460,8 @@ Essa abordagem evita que serviços internos dependam apenas de credenciais simpl
 
 ---
 
+
+
 ## 📈 Observabilidade e Validação Operacional
 
 A observabilidade da plataforma é construída para permitir acompanhar não apenas se os serviços estão disponíveis, mas também como o pipeline está se comportando em cada etapa.
@@ -511,6 +513,38 @@ Dessa forma, é possível acompanhar a jornada de um documento desde a ingestão
 > **Anexo:** [Observabilidade e monitoramento](./docs/observability/overview.md)
 
 ---
+
+## 🧪 Testes e Qualidades
+
+A validação do AcademicPass não se limita ao teste unitário de funções isoladas. Como o sistema é distribuído e orientado a eventos, a estratégia de testes precisa cobrir integração entre serviços, persistência, mensageria, busca e comportamento sob carga.
+
+### Níveis de validação
+
+| Nível | Objetivo |
+|---|---|
+| Testes unitários | Validar regras internas, parsers, transformações e funções isoladas. |
+| Testes de integração | Validar a comunicação com Kafka, Elasticsearch, Redis, MinIO e LDAP. |
+| Testes de contrato | Garantir compatibilidade entre APIs REST e eventos Kafka. |
+| Testes end-to-end | Validar o fluxo completo, da ingestão até a busca ou geração de simulado. |
+| Testes de carga | Avaliar latência, throughput e comportamento sob concorrência. |
+
+### Ferramentas de validação
+
+- **Pytest** para validação dos serviços Python.
+- **Testes do Quarkus** para validação dos serviços Java.
+- **Testcontainers** ou ambientes efêmeros para testes de integração.
+- **Locust** para simulação de carga e concorrência.
+- **JMeter** para testes de performance e validação de cenários de acesso.
+- **GitHub Actions** para automação da esteira de validação.
+
+<p align="center">
+  <img src="./docs/imagens/diagramas/teste.png">
+</p>
+
+> **Anexo:** [Estratégia de testes](./docs/testing/overview.md)
+
+---
+
 
 
 
