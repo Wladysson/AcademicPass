@@ -45,7 +45,6 @@
 > **Documentação viva:** esta documentação encontra-se em evolução contínua e pode sofrer alterações conforme novos componentes, modelos são implementados.
 
 ---
-<br>
 
 # 📖 Visão Geral
 
@@ -156,8 +155,6 @@ A plataforma não trata o PDF apenas como um arquivo a ser armazenado. Cada docu
 Cada etapa é desacoplada por meio do Apache Kafka, que atua como backbone de mensageria da plataforma. Dessa forma, a indisponibilidade temporária de um consumidor não interrompe a produção de eventos, permitindo que o pipeline continue operando e que os dados sejam processados posteriormente.
 
 ---
----
-<br>
 
 # 📥 Ingestão e Persistência de Documentos
 
@@ -198,8 +195,6 @@ Essa decisão reduz o volume trafegado no Kafka, evita duplicação do arquivo e
 > **Anexo:** [Ingestão e MinIO](./services/ingestion-service/README.md)
 
 ---
----
-<br>
 
 # 🧵 Mensageria e Arquitetura de Comunicação
 
@@ -247,8 +242,6 @@ A DLQ permite que a equipe analise a causa da falha sem comprometer o avanço do
 > **Anexo:** [Mensageria e Kafka](./docs/messaging/overview.md)
 
 ---
----
-<br>
 
 # 🧠 Processamento e Estruturação de Documentos
 
@@ -308,8 +301,6 @@ O uso do LLM não substitui o processamento determinístico do pipeline. Ele atu
 > **Anexo:** [Extração e estruturação](./services/extraction-service/README.md)
 
 ---
----
-<br>
 
 # 🔎 Indexação Distribuída no Elasticsearch
 
@@ -374,8 +365,6 @@ O uso de aliases permite trocar a versão ativa do índice sem interromper o `se
 > **Anexo:** [Indexação e Elasticsearch](./services/indexing-service/README.md)
 
 ---
----
-<br>
 
 # ⚡ Consulta, Cache e Sessão
 
@@ -429,8 +418,6 @@ Essa estratégia equilibra performance, consumo de memória e consistência do e
 > **Anexo:** [Busca, cache e sessão](./services/search-service/README.md)
 
 ---
----
-<br>
 
 # 🔐 Segurança, Identidade e Comunicação Protegida
 
@@ -472,8 +459,6 @@ Essa abordagem evita que serviços internos dependam apenas de credenciais simpl
 > **Anexo:** [Segurança e Kerberos](./docs/security/overview.md)
 
 ---
----
-<br>
 
 # 🐳 Infraestrutura e Contêineres
 
@@ -521,8 +506,39 @@ A plataforma utiliza health checks para evitar que microsserviços sejam iniciad
 A diretiva `depends_on` com `condition: service_healthy` permite que o Compose aguarde a saúde real da dependência antes de iniciar o serviço dependente, evitando falhas de inicialização por indisponibilidade temporária de Kafka, Elasticsearch, Redis ou outros componentes.
 
 ---
----
-<br>
+
+# 🔁 Pipeline de Integração e Proteção do Repositório
+
+A pipeline de integração contínua é responsável por validar cada alteração antes que ela seja integrada à branch `main`. Sua função é garantir que o código compile, que as imagens sejam construídas corretamente, que os testes sejam executados e que nenhum conteúdo sensível seja introduzido no repositório.
+
+A esteira é executada automaticamente por meio do GitHub Actions em cada Pull Request aberto para a `main`. Uma alteração somente pode ser integrada quando todas as verificações obrigatórias forem concluídas com sucesso.
+
+### Proteção contra arquivos e informações críticas
+
+- Senhas, tokens e chaves de API;
+- Credenciais de banco, Kafka, Elasticsearch, Redis, MinIO ou LDAP;
+- Keytabs e principals do Kerberos;
+- Certificados privados e chaves criptográficas;
+- Arquivos `.env` com valores reais;
+- Configurações contendo dados de acesso a ambientes internos;
+- Informações pessoais, confidenciais ou dados de produção.
+
+O **secret scanning** analisa o repositório em busca de credenciais hardcoded, como chaves de API, senhas e tokens, e gera alertas quando identifica possíveis exposições.
+
+<p align="center">
+  <img src="./docs/imagens/diagramas/observability.png">
+</p>
+
+Quando habilitado, o **push protection** impede que o contribuidor envie um push contendo um segredo suportado, bloqueando a introdução da credencial antes que ela chegue ao repositório.
+
+### Comportamento em caso de falha
+
+<p align="center">
+  <img src="./docs/imagens/diagramas/observability.png">
+</p>
+
+
+> **Anexo:** [CI/CD e esteira de entrega](./docs/ci-cd/overview.md)
 
 # 📈 Observabilidade e Validação Operacional
 
@@ -575,8 +591,6 @@ Dessa forma, é possível acompanhar a jornada de um documento desde a ingestão
 > **Anexo:** [Observabilidade e monitoramento](./docs/observability/overview.md)
 
 ---
----
-<br>
 
 # 🧪 Testes e Qualidades
 
@@ -608,8 +622,12 @@ A validação do AcademicPass não se limita ao teste unitário de funções iso
 > **Anexo:** [Estratégia de testes](./docs/testing/overview.md)
 
 ---
+
+# Conclusão
+
+Será escrita no final.
+
 ---
-<br>
 
 
 
