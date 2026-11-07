@@ -208,6 +208,12 @@ Essa estratégia oferece três benefícios principais:
 - **Tolerância a falhas:** se um consumidor estiver indisponível, os eventos permanecem no tópico.
 - **Escalabilidade:** consumidores podem ser replicados para aumentar a capacidade de processamento.
 
+### Teste Kafka Group
+
+<p align="center">
+  <img src="./docs/imagens/test/kfka1.png">
+</p>
+
 ### Organização dos tópicos
 
 Os tópicos são organizados por domínio e finalidade, permitindo separar eventos de descoberta, processamento, indexação e geração de simulados.
@@ -221,6 +227,12 @@ Os tópicos são organizados por domínio e finalidade, permitindo separar event
 | `simulados.completed` | Serviço de processamento | `simulado-service` | Informa a conclusão e a localização do artefato. |
 | `processing.failed` | Consumidores do pipeline | DLQ / monitoramento | Registra falhas não recuperáveis ou esgotadas após retries. |
 
+### Teste Kafka Broker
+
+<p align="center">
+  <img src="./docs/imagens/test/kafka2.png">
+</p>
+
 ### Semântica de entrega e idempotência
 
 O pipeline adota entrega **at-least-once**, garantindo que um evento publicado no Kafka seja processado pelo consumidor. Como consequência, o mesmo evento pode ser entregue mais de uma vez em cenários de reinício, falha de rede ou reprocessamento.
@@ -231,7 +243,7 @@ No `indexing-service`, por exemplo, o processamento repetido de um mesmo evento 
 
 ### Reprocessamento e DLQ
 
-Eventos que falham temporariamente podem ser reprocessados por meio de retries controlados. Já eventos que apresentam falha definitiva — como PDF corrompido, formato inválido ou inconsistência estrutural — são encaminhados para uma Dead Letter Queue (DLQ).
+Eventos que falham temporariamente podem ser reprocessados por meio de retries controlados. Já eventos que apresentam falha definitiva como PDF corrompido, formato inválido ou inconsistência estrutural são encaminhados para uma Dead Letter Queue (DLQ).
 
 A DLQ permite que a equipe analise a causa da falha sem comprometer o avanço do pipeline. Dessa forma, mensagens problemáticas não bloqueiam o consumo das demais mensagens válidas.
 
@@ -406,6 +418,10 @@ A invalidação é aplicada quando:
 
 ---
 
+<p align="center">
+  <img src="./docs/imagens/test/redis.png" alt="Fluxo de Exportação e Processamento Assíncrono do Professor">
+</p>
+
 ### Processamento Assíncrono e Exportação (Visão do Professor)
 
 Para rotinas mais pesadas, como a geração e o download de arquivos PDF de simulados, o sistema adota um fluxo assíncrono acionado via broker de mensagens. O estado da exportação é mantido no Redis enquanto o worker processa os dados e armazena o artefato final no MinIO.
@@ -442,6 +458,10 @@ A plataforma utiliza perfis funcionais para controlar o acesso às funcionalidad
 | `PROFESSOR` | Acesso ampliado a gabaritos, metadados, painéis e exportações autorizadas. |
 
 A autorização é aplicada tanto na camada de API quanto na lógica de negócio, impedindo que um usuário acesse recursos fora do escopo do seu perfil.
+
+<p align="center">
+  <img src="./docs/imagens/test/ldap.png">
+</p>
 
 ### Kerberos, SASL e GSSAPI
 
