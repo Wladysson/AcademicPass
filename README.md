@@ -161,6 +161,10 @@ Esse serviço recebe documentos como provas, gabaritos e diretrizes, aplica vali
 
 Após a validação, o PDF original é persistido no MinIO, que atua como camada de object storage da plataforma.
 
+<p align="center">
+  <img src="./docs/imagens/diagramas/minio.png">
+</p>
+
 O MinIO é utilizado como fonte de verdade dos artefatos brutos. Isso significa que o arquivo original permanece disponível mesmo após o processamento, permitindo reprocessamento, auditoria, recuperação e evolução das estratégias de extração sem depender exclusivamente do conteúdo estruturado gerado anteriormente.
 
 Cada objeto armazenado é referenciado por metadados que incluem:
@@ -180,10 +184,6 @@ Após a persistência no MinIO, o `ingestion-service` publica um evento no Apach
 O evento não transporta o conteúdo binário do PDF. Em vez disso, ele carrega a referência ao objeto armazenado no MinIO, os metadados de ingestão e o identificador de correlação utilizado para rastrear a execução ponta a ponta.
 
 Essa decisão reduz o volume trafegado no Kafka, evita duplicação do arquivo em diferentes componentes e mantém o MinIO como fonte autoritativa do documento original.
-
-<p align="center">
-  <img src="./docs/imagens/diagramas/minio.png">
-</p>
 
 > **Anexo:** [Ingestão e MinIO](./services/ingestion-service/README.md)
 
@@ -238,11 +238,11 @@ No `indexing-service`, por exemplo, o processamento repetido de um mesmo evento 
 
 Eventos que falham temporariamente podem ser reprocessados por meio de retries controlados. Já eventos que apresentam falha definitiva como PDF corrompido, formato inválido ou inconsistência estrutural são encaminhados para uma Dead Letter Queue (DLQ).
 
-A DLQ permite que a equipe analise a causa da falha sem comprometer o avanço do pipeline. Dessa forma, mensagens problemáticas não bloqueiam o consumo das demais mensagens válidas.
-
 <p align="center">
   <img src="./docs/imagens/diagramas/dlq.png">
 </p>
+
+A DLQ permite que a equipe analise a causa da falha sem comprometer o avanço do pipeline. Dessa forma, mensagens problemáticas não bloqueiam o consumo das demais mensagens válidas.
 
 > **Anexo:** [Mensageria e Kafka](./docs/messaging/overview.md)
 
@@ -337,6 +337,10 @@ Cada documento indexado pode conter informações como:
 
 O Elasticsearch atua como camada de busca distribuída da plataforma. Ele permite consultas full-text sobre enunciados, alternativas e conteúdos relacionados, com suporte a análise em português.
 
+<p align="center">
+  <img src="./docs/imagens/diagramas/fulltext.png">
+</p>
+
 As capacidades de busca incluem:
 
 | Capacidade | Descrição técnica | Benefício para o usuário |
@@ -350,10 +354,6 @@ As capacidades de busca incluem:
 | **Paginação** | Divide os resultados em páginas controladas pela API. | Garante consultas leves e navegáveis mesmo em resultados extensos. |
 | **Highlight de trechos** | Destaca os fragmentos dos documentos que corresponderam à consulta. | Facilita a identificação do trecho relevante dentro do enunciado ou das alternativas. |
 
-<p align="center">
-  <img src="./docs/imagens/diagramas/fulltext.png">
-</p>
-
 Dessa forma, uma busca por um conceito, tema, disciplina ou palavra-chave consegue retornar questões relevantes mesmo quando o termo pesquisado não aparece exatamente igual ao texto original.
 
 ### Atualização e reindexação
@@ -361,10 +361,6 @@ Dessa forma, uma busca por um conceito, tema, disciplina ou palavra-chave conseg
 A indexação é tratada como um processo evolutivo. Quando o modelo de dados, o analisador ou a estratégia de extração é alterado, novos índices podem ser criados e validados antes de substituírem os índices anteriores.
 
 O uso de aliases permite trocar a versão ativa do índice sem interromper o `search-service`, reduzindo o impacto de reindexações e facilitando rollback em caso de inconsistências.
-
-<p align="center">
-  <img src="./docs/imagens/diagramas/indexing.png">
-</p>
 
 > **Anexo:** [Indexação e Elasticsearch](./services/indexing-service/README.md)
 
