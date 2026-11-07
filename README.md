@@ -145,14 +145,7 @@ cada camada tem suas imagens e explicaçao em suas devidas configurações.
 
 # Backend e Pontos de Estrutura
 
->**PARTE A SER TRATADA AQ**
-
 O AcademicPass implementa uma arquitetura orientada a eventos, na qual cada etapa do ciclo de vida do documento possui um serviço especializado, um contrato de entrada e saída e uma responsabilidade técnica bem delimitada.
-
-A plataforma não trata o PDF apenas como um arquivo a ser armazenado. Cada documento é conduzido por um pipeline de transformação progressiva: ele é descoberto, validado, persistido, processado, estruturado, indexado e disponibilizado para consulta. Essa separação permite que cada camada evolua de forma independente, seja reprocessada sem impactar as demais e seja observada de maneira isolada.
-
-
-Cada etapa é desacoplada por meio do Apache Kafka, que atua como backbone de mensageria da plataforma. Dessa forma, a indisponibilidade temporária de um consumidor não interrompe a produção de eventos, permitindo que o pipeline continue operando e que os dados sejam processados posteriormente.
 
 ---
 
@@ -189,7 +182,7 @@ O evento não transporta o conteúdo binário do PDF. Em vez disso, ele carrega 
 Essa decisão reduz o volume trafegado no Kafka, evita duplicação do arquivo em diferentes componentes e mantém o MinIO como fonte autoritativa do documento original.
 
 <p align="center">
-  <img src="./docs/imagens/diagramas/ingestion.png">
+  <img src="./docs/imagens/diagramas/minio.png">
 </p>
 
 > **Anexo:** [Ingestão e MinIO](./services/ingestion-service/README.md)
@@ -248,7 +241,7 @@ Eventos que falham temporariamente podem ser reprocessados por meio de retries c
 A DLQ permite que a equipe analise a causa da falha sem comprometer o avanço do pipeline. Dessa forma, mensagens problemáticas não bloqueiam o consumo das demais mensagens válidas.
 
 <p align="center">
-  <img src="./docs/imagens/diagramas/kafka-flow.png">
+  <img src="./docs/imagens/diagramas/dlq.png">
 </p>
 
 > **Anexo:** [Mensageria e Kafka](./docs/messaging/overview.md)
@@ -339,11 +332,6 @@ Cada documento indexado pode conter informações como:
 | **Classificação** | Curso | Contextualiza a questão conforme o curso de origem. |
 | **Classificação** | Ano | Permite filtros temporais e análises históricas. |
 | **Classificação** | Competências | Relaciona a questão às competências avaliadas. |
-| **Conteúdo estruturado** | Fórmulas em LaTeX | Preserva expressões matemáticas de forma pesquisável e renderizável. |
-| **Conteúdo estruturado** | Tabelas em Markdown | Mantém dados tabulares de forma estruturada. |
-| **Conteúdo estruturado** | Diagramas em Mermaid | Representa fluxogramas e estruturas visuais de forma textual. |
-| **Proveniência** | Referência ao PDF original no MinIO | Garante rastreabilidade entre a questão indexada e o arquivo bruto. |
-| **Metadados** | Metadados de processamento | Registra informações como origem, versão do processador e timestamp. |
 
 ### Busca full-text em português
 
@@ -361,6 +349,10 @@ As capacidades de busca incluem:
 | **Agregações** | Calcula distribuições e resumos sobre os resultados, como contagem por área ou ano. | Viabiliza análises exploratórias e painéis sobre o acervo. |
 | **Paginação** | Divide os resultados em páginas controladas pela API. | Garante consultas leves e navegáveis mesmo em resultados extensos. |
 | **Highlight de trechos** | Destaca os fragmentos dos documentos que corresponderam à consulta. | Facilita a identificação do trecho relevante dentro do enunciado ou das alternativas. |
+
+<p align="center">
+  <img src="./docs/imagens/diagramas/fulltext.png">
+</p>
 
 Dessa forma, uma busca por um conceito, tema, disciplina ou palavra-chave consegue retornar questões relevantes mesmo quando o termo pesquisado não aparece exatamente igual ao texto original.
 
