@@ -414,7 +414,7 @@ Para rotinas mais pesadas, como a geração e o download de arquivos PDF de simu
   <img src="./docs/imagens/diagramas/professor cache.png" alt="Fluxo de Exportação e Processamento Assíncrono do Professor">
 </p>
 
-alem do professor tem uma autoridade maior na plataforma, por sua mestre, 
+alem do professor tem uma autoridade maior na plataforma, por ser mestre, 
 ele consta com uma licenca de login
 pass onde somente ele tem sua credencial de acesso disponibilizada pela propria plataforma, mesmo que alguem descubra a senha, essa pass gerado aleatoriamente e enviado via email, faz com que alguem de fora nao consiga ter acesso.
 
@@ -433,7 +433,7 @@ pass onde somente ele tem sua credencial de acesso disponibilizada pela propria 
 A autenticação dos usuários é centralizada no `identity-service`, que valida credenciais por meio do OpenLDAP e emite o contexto de sessão utilizado pelos demais serviços.
 
 <p align="center">
-  <img src="./docs/imagens/diagramas/securitybased.png">
+  <img src="./docs/imagens/diagramas/kerberos.png">
 </p>
 
 ### Perfis de acesso
@@ -513,6 +513,10 @@ A diretiva `depends_on` com `condition: service_healthy` permite que o Compose a
 # 🔁 Pipeline de Integração e Proteção do Repositório
 
 A pipeline de integração contínua é responsável por validar cada alteração antes que ela seja integrada à branch `main`. Sua função é garantir que o código compile, que as imagens sejam construídas corretamente, que os testes sejam executados e que nenhum conteúdo sensível seja introduzido no repositório.
+
+<p align="center">
+  <img src="./docs/imagens/diagramas/pipeline.png">
+</p>
 
 A esteira é executada automaticamente por meio do GitHub Actions em cada Pull Request aberto para a `main`. Uma alteração somente pode ser integrada quando todas as verificações obrigatórias forem concluídas com sucesso.
 
