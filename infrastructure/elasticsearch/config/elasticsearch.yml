@@ -1,0 +1,35 @@
+# Identificacao do cluster e do no
+cluster.name: academicpass-cluster
+node.name: academicpass-elasticsearch-01
+
+# Configuracao do cluster local
+discovery.type: single-node
+node.roles: [ master, data, ingest ]
+
+# Enderecamento e comunicacao
+network.host: 0.0.0.0
+http.port: 9200
+transport.port: 9300
+
+# Seguranca
+xpack.security.enabled: true
+xpack.security.enrollment.enabled: false
+
+# TLS para comunicacao HTTP
+xpack.security.http.ssl.enabled: false
+
+# TLS para comunicacao entre nos
+xpack.security.transport.ssl.enabled: false
+
+# Limites e protecao de recursos
+indices.memory.index_buffer_size: 10%
+indices.queries.cache.size: 10%
+
+# Gerenciamento de snapshots
+path.repo: ["/usr/share/elasticsearch/snapshots"]
+
+# Monitoramento
+xpack.monitoring.collection.enabled: true
+
+# Logs
+logger.level: INFO
