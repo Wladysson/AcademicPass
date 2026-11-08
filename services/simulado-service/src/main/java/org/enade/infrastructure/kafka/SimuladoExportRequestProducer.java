@@ -46,7 +46,7 @@ public class SimuladoExportRequestProducer {
         try {
             String payload = objectMapper.writeValueAsString(event);
 
-            emitter.sendMessage(payload)
+            emitter.send(payload)
                     .subscribe()
                     .with(
                             ignored -> LOG.debugf(
