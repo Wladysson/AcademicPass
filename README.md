@@ -514,35 +514,33 @@ A diretiva `depends_on` com `condition: service_healthy` permite que o Compose a
 
 A pipeline de integração contínua é responsável por validar cada alteração antes que ela seja integrada à branch `main`. Sua função é garantir que o código compile, que as imagens sejam construídas corretamente, que os testes sejam executados e que nenhum conteúdo sensível seja introduzido no repositório.
 
+Cada serviço detem de sua determinada pipeline de teste, que so é alterada quando
+algo naquele determinado setor é devidamente modificado.
+
 <p align="center">
   <img src="./docs/imagens/diagramas/pipeline.png">
 </p>
 
-A esteira é executada automaticamente por meio do GitHub Actions em cada Pull Request aberto para a `main`. Uma alteração somente pode ser integrada quando todas as verificações obrigatórias forem concluídas com sucesso.
-
-### Proteção contra arquivos e informações críticas
-
-- Senhas, tokens e chaves de API;
-- Credenciais de banco, Kafka, Elasticsearch, Redis, MinIO ou LDAP;
-- Keytabs e principals do Kerberos;
-- Certificados privados e chaves criptográficas;
-- Arquivos `.env` com valores reais;
-- Configurações contendo dados de acesso a ambientes internos;
-- Informações pessoais, confidenciais ou dados de produção.
-
-O **secret scanning** analisa o repositório em busca de credenciais hardcoded, como chaves de API, senhas e tokens, e gera alertas quando identifica possíveis exposições.
+A esteira é executada automaticamente, em cada Pull Request aberto para a `main`. Uma alteração somente pode ser integrada quando todas as verificações obrigatórias forem concluídas com sucesso, ou seja: 
 
 <p align="center">
-  <img src="./docs/imagens/diagramas/observability.png">
+  <img src="./docs/imagens/diagramas/pull.png">
 </p>
 
-Quando habilitado, o **push protection** impede que o contribuidor envie um push contendo um segredo suportado, bloqueando a introdução da credencial antes que ela chegue ao repositório.
+Outro ponto importante sao os testes de verificaçao da pipeline onde detecta pontos
+de lixo, reticicios de codigo sujo e comentarios desestruturados, que podem afetar o entendimento dos profissionais na verificaçao da estrutura, onde ela gera um alerta relacionado aquela determinada seção.
 
-### Comportamento em caso de falha
+### Comportamento para a nuvem ☁️
+
+Além da execução local com Docker Compose, o Academic Pass está preparado para implantação em ambientes Kubernetes, com um fluxo de entrega integrado ao Argo CD já configurado e funcional.
+
+Nesse fluxo, as pipelines do GitHub Actions realizam as verificações dos serviços e a construção das imagens de contêiner. O Argo CD acompanha as configurações de implantação versionadas no Git e permite sincronizar o estado das aplicações no cluster Kubernetes com o estado declarado no repositório, seguindo a abordagem GitOps.
 
 <p align="center">
-  <img src="./docs/imagens/diagramas/observability.png">
+  <img src="./docs/imagens/diagramas/argo.png">
 </p>
+
+Essa preparação amplia as possibilidades de implantação da plataforma sem substituir a execução local exigida pelo trabalho. O Docker Compose permanece como referência para reprodução do ambiente, enquanto Kubernetes e Argo CD representam uma evolução da infraestrutura para execução e gerenciamento em cluster, que pode futuramente ser implementado sua infraestrutura em terraform, para ecossitemas como AWS, GCP e Oracle.
 
 
 > **Anexo:** [CI/CD e esteira de entrega](./docs/ci-cd/overview.md)
