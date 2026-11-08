@@ -1,9 +1,11 @@
+
 package org.enade.simulado.application;
 
 import org.enade.simulado.domain.exception.SimuladoExportException;
 import org.enade.simulado.domain.model.ExportFormat;
 import org.enade.simulado.domain.model.ExportStatus;
 import org.enade.simulado.domain.model.Simulado;
+import org.enade.simulado.domain.model.SimuladoQuestion;
 import org.enade.simulado.infrastructure.redis.ExportStatusRepository;
 import org.enade.simulado.infrastructure.search.SearchClient;
 import org.enade.simulado.infrastructure.selection.SelectionClient;
@@ -12,10 +14,13 @@ import org.enade.simulado.presentation.dto.SimuladoExportRequestDto;
 import org.enade.simulado.presentation.dto.SimuladoStatusResponseDto;
 import org.enade.simulado.workers.SimuladoJsonGenerator;
 import org.enade.simulado.workers.SimuladoPdfGenerator;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import org.jboss.logging.Logger;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -65,19 +70,17 @@ public class SimuladoGenerationUseCase {
                     exportId,
                     ExportStatus.PROCESSING,
                     null,
-                    null
+                    Instant.now()
             );
 
-            List<?> questions = request.getQuestionIds() != null
-                    && !request.getQuestionIds().isEmpty()
-                    ? selectionClient.buscarSelecionadas(
-                    request.getQuestionIds(),
-                    authorizationHeader
-            )
-                    : searchClient.buscarQuestoes(
-                    request,
-                    authorizationHeader
-            );
+            List<String> selectedQuestionIds =
+                    selectionClient.buscarQuestaoIds(authorizationHeader);
+
+            List<SimuladoQuestion> questions =
+                    searchClient.buscarPorIds(
+                            selectedQuestionIds,
+                            authorizationHeader
+                    );
 
             if (questions == null || questions.isEmpty()) {
                 throw new SimuladoExportException(
@@ -98,17 +101,23 @@ public class SimuladoGenerationUseCase {
             String contentType = obterContentType(request.getFormat());
             String fileName = gerarNomeArquivo(exportId, request.getFormat());
 
-            String fileUrl = exportFileStorage.salvar(
-                    fileName,
-                    fileContent,
-                    contentType
-            );
+            ExportFileStorage.StoredExport storedExport =
+                    exportFileStorage.salvar(
+                            exportId,
+                            fileName,
+                            fileContent,
+                            contentType
+                    );
+
+            String fileUrl = storedExport.fileUrl() != null
+                    ? storedExport.fileUrl()
+                    : storedExport.storageKey();
 
             exportStatusRepository.salvar(
                     exportId,
                     ExportStatus.COMPLETED,
                     fileUrl,
-                    null
+                    Instant.now()
             );
 
             LOG.infof(
@@ -122,6 +131,7 @@ public class SimuladoGenerationUseCase {
         } catch (SimuladoExportException exception) {
             registrarFalha(exportId, exception.getMessage());
             throw exception;
+
         } catch (Exception exception) {
             LOG.errorf(
                     exception,
@@ -149,6 +159,17 @@ public class SimuladoGenerationUseCase {
         }
 
         return exportStatusRepository.buscar(exportId)
+                .map(record -> new SimuladoStatusResponseDto(
+                        record.exportId(),
+                        record.status(),
+                        record.message(),
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        Instant.parse(record.updatedAt())
+                ))
                 .orElseThrow(() -> new SimuladoExportException(
                         "Exportação não encontrada: " + exportId
                 ));
@@ -177,8 +198,7 @@ public class SimuladoGenerationUseCase {
     }
 
     private String gerarNomeArquivo(String exportId, ExportFormat format) {
-        return "simulados/" + exportId + "." +
-                format.name().toLowerCase();
+        return "simulado." + format.name().toLowerCase();
     }
 
     private void registrarFalha(String exportId, String mensagem) {
@@ -186,8 +206,8 @@ public class SimuladoGenerationUseCase {
             exportStatusRepository.salvar(
                     exportId,
                     ExportStatus.FAILED,
-                    null,
-                    mensagem
+                    mensagem,
+                    Instant.now()
             );
         } catch (Exception exception) {
             LOG.errorf(
