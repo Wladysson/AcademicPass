@@ -1,5 +1,10 @@
 # AcademicPass
 
+<p align="center">
+  <a href="./docs/orientacion/base.md">Arvore base</a>
+</p>
+
+
 #### Bloco relacionado ao projeto: 
 
 > **ATENÇÃO:** Para este projeto deve ser adotada a branch **main** como a principal para ser **criada** as outras branchs relacionadas ao **desenvolvimento do codigo**. 

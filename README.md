@@ -418,10 +418,6 @@ alem do professor tem uma autoridade maior na plataforma, por ser mestre,
 ele consta com uma licenca de login
 pass onde somente ele tem sua credencial de acesso disponibilizada pela propria plataforma, mesmo que alguem descubra a senha, essa pass gerado aleatoriamente e enviado via email, faz com que alguem de fora nao consiga ter acesso.
 
----
-
----
-
 > **Anexo:** [Busca, cache e sessão](./services/search-service/README.md)
 
 ---
