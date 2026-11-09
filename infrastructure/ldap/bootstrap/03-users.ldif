@@ -1,0 +1,44 @@
+dn: cn=directory-admin,dc=example,dc=org
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: directory-admin
+sn: AcademicPass
+description: Conta administrativa de referencia para os grupos LDAP
+
+dn: uid=student.test,ou=People,dc=example,dc=org
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: student.test
+cn: Estudante de Teste
+sn: Teste
+givenName: Estudante
+displayName: Estudante de Teste
+description: Conta local de teste com perfil STUDENT
+mail: student.test@academicpass.local
+
+dn: uid=professor.test,ou=People,dc=example,dc=org
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: professor.test
+cn: Professor de Teste
+sn: Teste
+givenName: Professor
+displayName: Professor de Teste
+description: Conta local de teste com perfil PROFESSOR
+mail: professor.test@academicpass.local
+
+dn: cn=STUDENT,ou=Groups,dc=example,dc=org
+changetype: modify
+add: member
+member: uid=student.test,ou=People,dc=example,dc=org
+
+dn: cn=PROFESSOR,ou=Groups,dc=example,dc=org
+changetype: modify
+add: member
+member: uid=professor.test,ou=People,dc=example,dc=org
