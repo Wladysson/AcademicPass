@@ -1,0 +1,7 @@
+# Elasticsearch node principals
+elasticsearch/es-node-1.academicpass.local@ACADEMICPASS.LOCAL
+elasticsearch/es-node-2.academicpass.local@ACADEMICPASS.LOCAL
+elasticsearch/es-node-3.academicpass.local@ACADEMICPASS.LOCAL
+
+# Elasticsearch service client
+elasticsearch-client@ACADEMICPASS.LOCAL
