@@ -1,0 +1,7 @@
+# Kafka broker principals
+kafka/kafka-1.academicpass.local@ACADEMICPASS.LOCAL
+kafka/kafka-2.academicpass.local@ACADEMICPASS.LOCAL
+kafka/kafka-3.academicpass.local@ACADEMICPASS.LOCAL
+
+# Kafka client principal
+kafka-client@ACADEMICPASS.LOCAL
