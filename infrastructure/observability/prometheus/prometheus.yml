@@ -1,0 +1,109 @@
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  evaluation_interval: 15s
+
+  external_labels:
+    platform: academicpass
+    environment: development
+
+scrape_configs:
+  # Prometheus
+  - job_name: prometheus
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - prometheus:9090
+
+  # Java / Quarkus services
+  - job_name: identity-service
+    metrics_path: /q/metrics
+    static_configs:
+      - targets:
+          - identity-service:8080
+
+  - job_name: search-service
+    metrics_path: /q/metrics
+    static_configs:
+      - targets:
+          - search-service:8082
+
+  - job_name: question-selection-service
+    metrics_path: /q/metrics
+    static_configs:
+      - targets:
+          - question-selection-service:8083
+
+  - job_name: simulado-service
+    metrics_path: /q/metrics
+    static_configs:
+      - targets:
+          - simulado-service:8084
+
+  # Python services
+  - job_name: ingestion-service
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - ingestion-service:8000
+
+  - job_name: extraction-service
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - extraction-service:8000
+
+  - job_name: indexing-service
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - indexing-service:8000
+
+  # Kafka
+  - job_name: kafka-exporter
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - kafka-exporter:9308
+
+  # Elasticsearch
+  - job_name: elasticsearch-exporter
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - elasticsearch-exporter:9114
+
+  # Redis
+  - job_name: redis-exporter
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - redis-exporter:9121
+
+  # MinIO
+  - job_name: minio
+    metrics_path: /minio/v2/metrics/cluster
+    static_configs:
+      - targets:
+          - minio:9000
+
+  # LDAP
+  - job_name: ldap-exporter
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - ldap-exporter:9330
+
+  # Host metrics
+  - job_name: node-exporter
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - node-exporter:9100
+
+  # Container metrics
+  - job_name: cadvisor
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - cadvisor:8080
