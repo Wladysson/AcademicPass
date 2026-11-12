@@ -1,0 +1,172 @@
+version: "1.0"
+
+gateway:
+  name: academicpass-api-gateway
+  description: Contrato público de entrada da plataforma AcademicPass.
+  base_path: /
+  protocol: HTTP
+  listen_port: 80
+  published_port: 8080
+
+  defaults:
+    authentication: required
+    authorization: delegated_to_service
+    strip_prefix: false
+    preserve_host: true
+    forward_headers:
+      - Authorization
+      - Content-Type
+      - Accept
+      - X-Request-ID
+      - X-Forwarded-For
+      - X-Forwarded-Proto
+      - X-Forwarded-Host
+
+  health:
+    path: /health
+    method: GET
+    authentication: none
+    response:
+      status: 200
+      content_type: application/json
+
+services:
+  - name: identity-service
+    upstream: identity_service
+    internal_url: http://identity-service:8081
+    public_routes:
+      - path: /api/v1/auth
+        methods: [POST]
+        authentication: none
+        description: Autenticação e obtenção de sessão.
+      - path: /api/v1/auth/session
+        methods: [GET]
+        authentication: required
+        description: Consulta da sessão autenticada.
+      - path: /api/v1/auth/logout
+        methods: [POST]
+        authentication: required
+        description: Encerramento da sessão.
+
+  - name: search-service
+    upstream: search_service
+    internal_url: http://search-service:8082
+    public_routes:
+      - path: /api/v1/questions
+        methods: [GET]
+        authentication: required
+        description: Busca textual, filtros e paginação de questões.
+      - path: /api/v1/aggregations
+        methods: [GET]
+        authentication: required
+        description: Consulta de agregações estatísticas das questões.
+
+  - name: question-selection-service
+    upstream: question_selection_service
+    internal_url: http://question-selection-service:8083
+    public_routes:
+      - path: /api/v1/selections
+        methods: [GET, POST, PATCH, DELETE]
+        authentication: required
+        description: Gerenciamento da seleção de questões do usuário.
+
+  - name: simulado-service
+    upstream: simulado_service
+    internal_url: http://simulado-service:8084
+    public_routes:
+      - path: /api/v1/simulados
+        methods: [GET, POST]
+        authentication: required
+        description: Solicitação e consulta de simulados.
+      - path: /api/v1/simulados/{simulado_id}
+        methods: [GET]
+        authentication: required
+        description: Consulta de um simulado específico.
+      - path: /api/v1/simulados/{simulado_id}/export
+        methods: [GET]
+        authentication: required
+        description: Exportação de um simulado.
+
+  - name: ingestion-service
+    upstream: ingestion_service
+    internal_url: http://ingestion-service:8091
+    exposure: internal
+    public_routes: []
+
+  - name: extraction-service
+    upstream: extraction_service
+    internal_url: http://extraction-service:8092
+    exposure: internal
+    public_routes: []
+
+  - name: indexing-service
+    upstream: indexing_service
+    internal_url: http://indexing-service:8093
+    exposure: internal
+    public_routes: []
+
+documentation:
+  enabled: true
+  routes:
+    - path: /api/docs/identity/
+      service: identity-service
+    - path: /api/docs/search/
+      service: search-service
+    - path: /api/docs/selections/
+      service: question-selection-service
+    - path: /api/docs/simulados/
+      service: simulado-service
+
+security:
+  authentication:
+    provider: identity-service
+    mechanism: bearer_token
+    session_store: redis
+
+  authorization:
+    enforcement: service_level
+    roles:
+      - STUDENT
+      - PROFESSOR
+
+  transport:
+    external_tls_termination: not_configured
+    internal_protocol: HTTP
+
+  request_limits:
+    max_body_size: 50m
+    connect_timeout_seconds: 5
+    read_timeout_seconds: 60
+    send_timeout_seconds: 60
+
+  headers:
+    request_id:
+      enabled: true
+      header: X-Request-ID
+    forwarded_headers: true
+
+  rate_limiting:
+    enabled: false
+    note: Deve ser habilitado quando as políticas de limites por rota forem definidas.
+
+errors:
+  content_type: application/json
+  format:
+    fields:
+      - status
+      - error
+      - message
+      - request_id
+
+  status_codes:
+    - 400
+    - 401
+    - 403
+    - 404
+    - 405
+    - 413
+    - 429
+    - 500
+    - 502
+    - 503
+    - 504
