@@ -1,0 +1,321 @@
+{
+  "type": "record",
+  "name": "QuestionStructuredEvent",
+  "namespace": "org.academicpass.events.extraction",
+  "doc": "Evento que representa uma questão extraída, estruturada e rastreável até seu documento de origem.",
+  "fields": [
+    {
+      "name": "event_id",
+      "type": "string",
+      "doc": "Identificador único do evento."
+    },
+    {
+      "name": "event_type",
+      "type": {
+        "type": "enum",
+        "name": "EventType",
+        "symbols": [
+          "QUESTION_STRUCTURED"
+        ]
+      }
+    },
+    {
+      "name": "schema_version",
+      "type": "string",
+      "default": "1.0"
+    },
+    {
+      "name": "occurred_at",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "Instante de publicação do evento."
+    },
+    {
+      "name": "question_id",
+      "type": "string",
+      "doc": "Identificador estável e único da questão."
+    },
+    {
+      "name": "document",
+      "type": "record",
+      "name": "SourceDocument",
+      "doc": "Referência ao PDF que originou a questão.",
+      "fields": [
+        {
+          "name": "storage_key",
+          "type": "string",
+          "doc": "Chave do PDF no armazenamento compartilhado."
+        },
+        {
+          "name": "checksum",
+          "type": "string",
+          "doc": "Checksum do PDF utilizado na extração."
+        },
+        {
+          "name": "filename",
+          "type": "string"
+        },
+        {
+          "name": "page_start",
+          "type": "int",
+          "doc": "Primeira página da questão no documento."
+        },
+        {
+          "name": "page_end",
+          "type": "int",
+          "doc": "Última página da questão no documento."
+        }
+      ]
+    },
+    {
+      "name": "exam",
+      "type": "record",
+      "name": "ExamMetadata",
+      "doc": "Informações acadêmicas da prova.",
+      "fields": [
+        {
+          "name": "year",
+          "type": "int"
+        },
+        {
+          "name": "area",
+          "type": "string"
+        },
+        {
+          "name": "discipline",
+          "type": "string"
+        },
+        {
+          "name": "institution",
+          "type": [
+            "null",
+            "string"
+          ],
+          "default": null
+        },
+        {
+          "name": "exam_type",
+          "type": [
+            "null",
+            "string"
+          ],
+          "default": null
+        }
+      ]
+    },
+    {
+      "name": "content",
+      "type": "record",
+      "name": "QuestionContent",
+      "doc": "Conteúdo textual e multimodal estruturado da questão.",
+      "fields": [
+        {
+          "name": "statement",
+          "type": "string",
+          "doc": "Enunciado integral da questão."
+        },
+        {
+          "name": "context",
+          "type": [
+            "null",
+            "string"
+          ],
+          "default": null,
+          "doc": "Texto de apoio ou contextualização."
+        },
+        {
+          "name": "alternatives",
+          "type": {
+            "type": "array",
+            "items": {
+              "type": "record",
+              "name": "Alternative",
+              "fields": [
+                {
+                  "name": "label",
+                  "type": "string",
+                  "doc": "Identificador da alternativa, como A, B, C, D ou E."
+                },
+                {
+                  "name": "text",
+                  "type": "string"
+                },
+                {
+                  "name": "is_correct",
+                  "type": [
+                    "null",
+                    "boolean"
+                  ],
+                  "default": null,
+                  "doc": "Indica se a alternativa é correta, quando essa informação estiver disponível."
+                }
+              ]
+            }
+          },
+          "default": []
+        },
+        {
+          "name": "question_type",
+          "type": {
+            "type": "enum",
+            "name": "QuestionType",
+            "symbols": [
+              "MULTIPLE_CHOICE",
+              "OPEN_ENDED",
+              "TRUE_FALSE",
+              "OTHER"
+            ]
+          }
+        },
+        {
+          "name": "formulas",
+          "type": {
+            "type": "array",
+            "items": "string"
+          },
+          "default": [],
+          "doc": "Expressões matemáticas representadas em LaTeX."
+        },
+        {
+          "name": "tables",
+          "type": {
+            "type": "array",
+            "items": {
+              "type": "record",
+              "name": "QuestionTable",
+              "fields": [
+                {
+                  "name": "title",
+                  "type": [
+                    "null",
+                    "string"
+                  ],
+                  "default": null
+                },
+                {
+                  "name": "headers",
+                  "type": {
+                    "type": "array",
+                    "items": "string"
+                  },
+                  "default": []
+                },
+                {
+                  "name": "rows",
+                  "type": {
+                    "type": "array",
+                    "items": {
+                      "type": "array",
+                      "items": "string"
+                    }
+                  },
+                  "default": []
+                }
+              ]
+            }
+          },
+          "default": []
+        },
+        {
+          "name": "diagrams",
+          "type": {
+            "type": "array",
+            "items": {
+              "type": "record",
+              "name": "QuestionDiagram",
+              "fields": [
+                {
+                  "name": "description",
+                  "type": "string"
+                },
+                {
+                  "name": "source",
+                  "type": [
+                    "null",
+                    "string"
+                  ],
+                  "default": null,
+                  "doc": "Representação textual, por exemplo, código Mermaid."
+                },
+                {
+                  "name": "format",
+                  "type": [
+                    "null",
+                    "string"
+                  ],
+                  "default": null
+                }
+              ]
+            }
+          },
+          "default": []
+        }
+      ]
+    },
+    {
+      "name": "extraction",
+      "type": "record",
+      "name": "ExtractionMetadata",
+      "doc": "Rastreabilidade do processamento que produziu a questão.",
+      "fields": [
+        {
+          "name": "processor",
+          "type": "string",
+          "doc": "Identificação do componente responsável pela extração."
+        },
+        {
+          "name": "processor_version",
+          "type": "string"
+        },
+        {
+          "name": "extracted_at",
+          "type": {
+            "type": "long",
+            "logicalType": "timestamp-millis"
+          }
+        },
+        {
+          "name": "method",
+          "type": {
+            "type": "enum",
+            "name": "ExtractionMethod",
+            "symbols": [
+              "PYMUPDF",
+              "PDFPLUMBER",
+              "LLM",
+              "HYBRID"
+            ]
+          }
+        },
+        {
+          "name": "confidence",
+          "type": [
+            "null",
+            "float"
+          ],
+          "default": null,
+          "doc": "Indicador de confiança da extração, quando calculado."
+        },
+        {
+          "name": "warnings",
+          "type": {
+            "type": "array",
+            "items": "string"
+          },
+          "default": []
+        }
+      ]
+    },
+    {
+      "name": "metadata",
+      "type": {
+        "type": "map",
+        "values": "string"
+      },
+      "default": {},
+      "doc": "Metadados adicionais da questão."
+    }
+  ]
+}
