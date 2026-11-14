@@ -1,0 +1,231 @@
+name: academicpass
+
+services:
+  # ==========================================
+  # KAFKA - KRaft
+  # ==========================================
+
+  kafka:
+    image: apache/kafka:4.1.0
+    container_name: academicpass-kafka
+    restart: unless-stopped
+    hostname: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+      KAFKA_LISTENERS: "INTERNAL://:9092,CONTROLLER://:9093"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:9092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:SASL_PLAINTEXT,CONTROLLER:PLAINTEXT"
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_SASL_ENABLED_MECHANISMS: GSSAPI
+      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: GSSAPI
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+      - ../infra/kerberos/keytabs:/etc/security/keytabs:ro
+      - ../infra/kerberos/krb5.conf:/etc/krb5.conf:ro
+    networks:
+      - academicpass-network
+
+  # ==========================================
+  # ELASTICSEARCH
+  # ==========================================
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.19.0
+    container_name: academicpass-elasticsearch
+    restart: unless-stopped
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - academicpass-network
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - curl -fsS http://localhost:9200/_cluster/health || exit 1
+      interval: 20s
+      timeout: 10s
+      retries: 10
+      start_period: 40s
+
+  # ==========================================
+  # KIBANA
+  # ==========================================
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.19.0
+    container_name: academicpass-kibana
+    restart: unless-stopped
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    networks:
+      - academicpass-network
+
+  # ==========================================
+  # REDIS
+  # ==========================================
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: academicpass-redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD:-academicpass-local}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - academicpass-network
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - redis-cli -a "$${REDIS_PASSWORD:-academicpass-local}" ping | grep -q PONG
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==========================================
+  # MINIO
+  # ==========================================
+
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    container_name: academicpass-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-academicpass}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-academicpass-local}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - academicpass-network
+
+  # ==========================================
+  # OPENLDAP
+  # ==========================================
+
+  ldap:
+    image: osixia/openldap:1.5.0
+    container_name: academicpass-ldap
+    restart: unless-stopped
+    environment:
+      LDAP_ORGANISATION: AcademicPass
+      LDAP_DOMAIN: ${LDAP_DOMAIN:-academicpass.local}
+      LDAP_ADMIN_PASSWORD: ${LDAP_ADMIN_PASSWORD:-academicpass-local}
+      LDAP_CONFIG_PASSWORD: ${LDAP_CONFIG_PASSWORD:-academicpass-local}
+      LDAP_TLS: "false"
+    ports:
+      - "389:389"
+      - "636:636"
+    volumes:
+      - ldap-data:/var/lib/ldap
+      - ldap-config:/etc/ldap/slapd.d
+    networks:
+      - academicpass-network
+
+  # ==========================================
+  # MIT KERBEROS
+  # ==========================================
+
+  kerberos:
+    image: ${KERBEROS_IMAGE:-academicpass-kerberos:local}
+    container_name: academicpass-kerberos
+    restart: unless-stopped
+    hostname: kerberos
+    ports:
+      - "88:88"
+      - "464:464"
+    volumes:
+      - kerberos-data:/var/lib/krb5kdc
+      - ../infra/kerberos:/etc/krb5kdc
+      - ../infra/kerberos/keytabs:/etc/security/keytabs
+    networks:
+      - academicpass-network
+
+  # ==========================================
+  # PROMETHEUS
+  # ==========================================
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    container_name: academicpass-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+    networks:
+      - academicpass-network
+
+  # ==========================================
+  # GRAFANA
+  # ==========================================
+
+  grafana:
+    image: grafana/grafana:12.1.1
+    container_name: academicpass-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-academicpass-local}
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - academicpass-network
+
+# ==========================================
+# NETWORKS
+# ==========================================
+
+networks:
+  academicpass-network:
+    name: academicpass-network
+    driver: bridge
+
+# ==========================================
+# VOLUMES
+# ==========================================
+
+volumes:
+  kafka-data:
+  elasticsearch-data:
+  redis-data:
+  minio-data:
+  ldap-data:
+  ldap-config:
+  kerberos-data:
+  prometheus-data:
+  grafana-data:
