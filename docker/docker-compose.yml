@@ -1,0 +1,319 @@
+name: academicpass
+
+x-service-defaults: &service-defaults
+  restart: unless-stopped
+  networks:
+    - academicpass-network
+
+services:
+  # ==========================================
+  # INFRASTRUCTURE
+  # ==========================================
+
+  kafka:
+    <<: *service-defaults
+    image: apache/kafka:4.1.0
+    container_name: academicpass-kafka
+    profiles: ["infra", "full"]
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+      KAFKA_LISTENERS: "INTERNAL://:9092,CONTROLLER://:9093"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:9092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:SASL_PLAINTEXT,CONTROLLER:PLAINTEXT"
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_SASL_ENABLED_MECHANISMS: GSSAPI
+      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: GSSAPI
+      KAFKA_LISTENER_NAME_INTERNAL_GSSAPI_SASL_JAAS_CONFIG: >-
+        com.sun.security.auth.module.Krb5LoginModule required
+        useKeyTab=true
+        storeKey=true
+        keyTab="/etc/security/keytabs/kafka.keytab"
+        principal="${KAFKA_PRINCIPAL:-kafka/kafka@ACADEMICPASS.LOCAL}";
+      KAFKA_LISTENER_NAME_INTERNAL_GSSAPI_SASL_SERVER_CALLBACK_HANDLER_CLASS: ""
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+      - ../infra/kerberos/keytabs:/etc/security/keytabs:ro
+      - ../infra/kerberos/krb5.conf:/etc/krb5.conf:ro
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - /opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 --command-config /etc/kafka/client.properties || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  elasticsearch:
+    <<: *service-defaults
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.19.0
+    container_name: academicpass-elasticsearch
+    profiles: ["infra", "full"]
+    ports:
+      - "9200:9200"
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - curl -fsS http://localhost:9200/_cluster/health || exit 1
+      interval: 20s
+      timeout: 10s
+      retries: 10
+      start_period: 40s
+
+  redis:
+    <<: *service-defaults
+    image: redis:7.4-alpine
+    container_name: academicpass-redis
+    profiles: ["infra", "full"]
+    command: >
+      redis-server
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD:-academicpass-local}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - redis-cli -a "$${REDIS_PASSWORD:-academicpass-local}" ping | grep -q PONG
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    <<: *service-defaults
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    container_name: academicpass-minio
+    profiles: ["infra", "full"]
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-academicpass}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-academicpass-local}
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
+  ldap:
+    <<: *service-defaults
+    image: osixia/openldap:1.5.0
+    container_name: academicpass-ldap
+    profiles: ["infra", "full"]
+    ports:
+      - "389:389"
+      - "636:636"
+    environment:
+      LDAP_ORGANISATION: AcademicPass
+      LDAP_DOMAIN: ${LDAP_DOMAIN:-academicpass.local}
+      LDAP_ADMIN_PASSWORD: ${LDAP_ADMIN_PASSWORD:-academicpass-local}
+      LDAP_CONFIG_PASSWORD: ${LDAP_CONFIG_PASSWORD:-academicpass-local}
+      LDAP_TLS: "false"
+    volumes:
+      - ldap-data:/var/lib/ldap
+      - ldap-config:/etc/ldap/slapd.d
+    healthcheck:
+      test: ["CMD-SHELL", "ldapsearch -x -H ldap://localhost:389 -b '' -s base >/dev/null 2>&1"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
+  kerberos:
+    <<: *service-defaults
+    image: ${KERBEROS_IMAGE:-academicpass-kerberos:local}
+    container_name: academicpass-kerberos
+    profiles: ["infra", "full"]
+    hostname: kerberos
+    ports:
+      - "88:88"
+      - "464:464"
+    volumes:
+      - kerberos-data:/var/lib/krb5kdc
+      - ../infra/kerberos:/etc/krb5kdc
+      - ../infra/kerberos/keytabs:/etc/security/keytabs
+    healthcheck:
+      test: ["CMD-SHELL", "kadmin.local -q 'listprincs' >/dev/null 2>&1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  prometheus:
+    <<: *service-defaults
+    image: prom/prometheus:v3.5.0
+    container_name: academicpass-prometheus
+    profiles: ["infra", "full"]
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus-data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+
+  grafana:
+    <<: *service-defaults
+    image: grafana/grafana:12.1.1
+    container_name: academicpass-grafana
+    profiles: ["infra", "full"]
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-academicpass-local}
+    volumes:
+      - grafana-data:/var/lib/grafana
+
+  # ==========================================
+  # APPLICATION SERVICES
+  # ==========================================
+
+  identity-service:
+    <<: *service-defaults
+    container_name: academicpass-identity-service
+    profiles: ["services", "full"]
+    build:
+      context: ../services/identity-service
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      QUARKUS_HTTP_HOST: 0.0.0.0
+      QUARKUS_HTTP_PORT: 8081
+      LDAP_URL: ldap://ldap:389
+      REDIS_HOSTS: redis://:academicpass-local@redis:6379
+    networks:
+      - academicpass-network
+
+  search-service:
+    <<: *service-defaults
+    container_name: academicpass-search-service
+    profiles: ["services", "full"]
+    build:
+      context: ../services/search-service
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    environment:
+      QUARKUS_HTTP_HOST: 0.0.0.0
+      QUARKUS_HTTP_PORT: 8082
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      REDIS_HOSTS: redis://:academicpass-local@redis:6379
+
+  question-selection-service:
+    <<: *service-defaults
+    container_name: academicpass-question-selection-service
+    profiles: ["services", "full"]
+    build:
+      context: ../services/question-selection-service
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8083"
+    environment:
+      QUARKUS_HTTP_HOST: 0.0.0.0
+      QUARKUS_HTTP_PORT: 8083
+      REDIS_HOSTS: redis://:academicpass-local@redis:6379
+
+  simulado-service:
+    <<: *service-defaults
+    container_name: academicpass-simulado-service
+    profiles: ["services", "full"]
+    build:
+      context: ../services/simulado-service
+      dockerfile: Dockerfile
+    ports:
+      - "8084:8084"
+    environment:
+      QUARKUS_HTTP_HOST: 0.0.0.0
+      QUARKUS_HTTP_PORT: 8084
+      REDIS_HOSTS: redis://:academicpass-local@redis:6379
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+
+  ingestion-service:
+    <<: *service-defaults
+    container_name: academicpass-ingestion-service
+    profiles: ["services", "full"]
+    build:
+      context: ../services/ingestion-service
+      dockerfile: Dockerfile
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      MINIO_ENDPOINT: minio:9000
+
+  extraction-service:
+    <<: *service-defaults
+    container_name: academicpass-extraction-service
+    profiles: ["services", "full"]
+    build:
+      context: ../services/extraction-service
+      dockerfile: Dockerfile
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      MINIO_ENDPOINT: minio:9000
+
+  indexing-service:
+    <<: *service-defaults
+    container_name: academicpass-indexing-service
+    profiles: ["services", "full"]
+    build:
+      context: ../services/indexing-service
+      dockerfile: Dockerfile
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+
+  api-gateway:
+    <<: *service-defaults
+    container_name: academicpass-api-gateway
+    profiles: ["services", "full"]
+    image: nginx:1.29-alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ../infra/api-gateway/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ../infra/api-gateway/nginx/config:/etc/nginx/config:ro
+
+# ==========================================
+# NETWORKS
+# ==========================================
+
+networks:
+  academicpass-network:
+    name: academicpass-network
+    driver: bridge
+
+# ==========================================
+# PERSISTENT VOLUMES
+# ==========================================
+
+volumes:
+  kafka-data:
+  elasticsearch-data:
+  redis-data:
+  minio-data:
+  ldap-data:
+  ldap-config:
+  kerberos-data:
+  prometheus-data:
+  grafana-data:
