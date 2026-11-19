@@ -1,92 +1,76 @@
 package org.enade.simulado.infrastructure.kafka;
 
-import org.enade.simulado.application.SimuladoGenerationUseCase;
 import org.enade.simulado.domain.exception.SimuladoExportException;
 import org.enade.simulado.presentation.dto.SimuladoExportRequestDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.smallrye.reactive.messaging.annotations.Blocking;
+import io.smallrye.reactive.messaging.MutinyEmitter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.eclipse.microprofile.reactive.messaging.Incoming;
+import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.jboss.logging.Logger;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @ApplicationScoped
-public class SimuladoExportRequestConsumer {
+public class SimuladoExportRequestProducer {
 
     private static final Logger LOG =
-            Logger.getLogger(SimuladoExportRequestConsumer.class);
+            Logger.getLogger(SimuladoExportRequestProducer.class);
 
     @Inject
     ObjectMapper objectMapper;
 
     @Inject
-    SimuladoGenerationUseCase simuladoGenerationUseCase;
+    @Channel("simulado-export-requested")
+    MutinyEmitter<String> emitter;
 
-    @Incoming("simulado-export-requested")
-    @Blocking
-    public void consumir(String payload) {
-        if (payload == null || payload.isBlank()) {
+    public void publicar(
+            UUID exportId,
+            SimuladoExportRequestDto request,
+            Instant requestedAt
+    ) {
+        if (exportId == null || request == null || requestedAt == null) {
             throw new SimuladoExportException(
-                    "O evento de solicitação de exportação está vazio."
+                    "Os dados da solicitação de exportação são obrigatórios."
             );
         }
 
-        SimuladoExportRequestProducer.SimuladoExportRequestEvent event;
+        SimuladoExportRequestEvent event = new SimuladoExportRequestEvent(
+                exportId.toString(),
+                request,
+                requestedAt
+        );
 
         try {
-            event = objectMapper.readValue(
-                    payload,
-                    SimuladoExportRequestProducer.SimuladoExportRequestEvent.class
-            );
-        } catch (Exception exception) {
-            LOG.error("Não foi possível interpretar o evento de exportação.", exception);
+            String payload = objectMapper.writeValueAsString(event);
 
+            emitter.sendMessage(payload)
+                    .subscribe()
+                    .with(
+                            ignored -> LOG.debugf(
+                                    "Solicitação de exportação publicada: %s",
+                                    exportId
+                            ),
+                            failure -> LOG.errorf(
+                                    failure,
+                                    "Falha ao publicar a solicitação de exportação %s",
+                                    exportId
+                            )
+                    );
+        } catch (JsonProcessingException exception) {
             throw new SimuladoExportException(
-                    "O evento de solicitação de exportação possui formato inválido.",
+                    "Não foi possível serializar a solicitação de exportação.",
                     exception
             );
         }
+    }
 
-        if (event.exportId() == null
-                || event.exportId().isBlank()
-                || event.request() == null
-                || event.requestedAt() == null) {
-            throw new SimuladoExportException(
-                    "O evento de exportação não contém todos os campos obrigatórios."
-            );
-        }
-
-        try {
-            LOG.infof(
-                    "Solicitação de exportação recebida: exportId=%s, requestedAt=%s",
-                    event.exportId(),
-                    event.requestedAt()
-            );
-
-            simuladoGenerationUseCase.gerar(
-                    event.exportId(),
-                    event.request(),
-                    null
-            );
-
-            LOG.infof(
-                    "Processamento da solicitação de exportação concluído: exportId=%s",
-                    event.exportId()
-            );
-        } catch (Exception exception) {
-            LOG.errorf(
-                    exception,
-                    "Falha ao processar a solicitação de exportação: exportId=%s",
-                    event.exportId()
-            );
-
-            throw new SimuladoExportException(
-                    "Falha no processamento da solicitação de exportação "
-                            + event.exportId() + ".",
-                    exception
-            );
-        }
+    public record SimuladoExportRequestEvent(
+            String exportId,
+            SimuladoExportRequestDto request,
+            Instant requestedAt
+    ) {
     }
 }
