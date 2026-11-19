@@ -1,0 +1,22 @@
+# API HTTP
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.30,<1.0
+
+# Configurações e validação
+pydantic>=2.9,<3.0
+pydantic-settings>=2.5,<3.0
+
+# Comunicação HTTP e integração com Google AI Studio
+httpx>=0.27,<1.0
+
+# Mensageria Kafka
+confluent-kafka>=2.6,<3.0
+
+# Armazenamento de documentos
+minio>=7.2,<8.0
+
+# Processamento de documentos PDF
+PyMuPDF>=1.24,<2.0
+
+# Métricas e observabilidade
+prometheus-client>=0.20,<1.0
