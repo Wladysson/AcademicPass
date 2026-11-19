@@ -3,7 +3,7 @@
 .env.*
 !.env.example
 
-# Local environment files
+# Nested environment files
 **/.env
 **/.env.*
 !**/.env.example
