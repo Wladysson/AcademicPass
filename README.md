@@ -370,50 +370,53 @@ O uso de aliases permite trocar a versão ativa do índice sem interromper o `se
 
 ### API de busca com Java e Quarkus
 
+O Redis é utilizado para reduzir a latência de operações frequentes e manter informações temporárias associadas à sessão do usuário.
+
+Ele não substitui o Elasticsearch como fonte de busca nem o MinIO como fonte dos documentos originais. Sua função é otimizar acessos recorrentes e preservar estado de curta duração.
+
 O `search-service` é implementado em Java com Quarkus e expõe a API REST responsável pelas consultas ao acervo estruturado.
 
 Esse serviço recebe requisições do frontend por meio do `api-gateway`, valida o contexto de autenticação, interpreta os filtros recebidos e executa as consultas no Elasticsearch.
 
 As consultas suportam:
+- Busca *full-text*, Filtros combináveis, Paginação, Ordenação por relevância, Agregações, Restrições por perfil de usuário e *Highlight*.
 
-- Busca full-text;
-- Filtros combináveis;
-- Paginação;
-- Ordenação por relevância;
-- Agregações;
-- Highlight;
-- Restrições por perfil de usuário.
+---
 
-### Redis como camada de baixa latência
+### Fluxo de Consulta, Cache e Seleção de Questões
 
-O Redis é utilizado para reduzir a latência de operações frequentes e manter informações temporárias associadas à sessão do usuário.
+O diagrama de sequência a seguir ilustra a interação do usuário final com a aplicação: validação de identidade via OpenLDAP, roteamento pelo NGINX Gateway, verificação da chave no Redis Cache e fallback de consulta no Elasticsearch, além do armazenamento do estado de seleção de questões.
 
-Ele não substitui o Elasticsearch como fonte de busca nem o MinIO como fonte dos documentos originais. Sua função é otimizar acessos recorrentes e preservar estado de curta duração.
+<p align="center">
+  <img src="./docs/imagens/diagramas/usuario cache.png" alt="Fluxo de Consulta, Cache e Seleção do Usuário">
+</p>
 
-| Uso do Redis | Finalidade |
-|---|---|
-| Cache de buscas frequentes | Reduz consultas repetidas ao Elasticsearch. |
-| Sessões de autenticação | Mantém o contexto autenticado do usuário. |
-| Lista de questões selecionadas | Preserva o estado de seleção durante a navegação. |
-| Controle de operações temporárias | Suporta fluxos como geração e acompanhamento de simulados. |
+---
 
-### Política de expiração e invalidação
+### Política de Expiração e Invalidação
 
-Os dados armazenados no Redis possuem TTL, garantindo que informações temporárias não permaneçam indefinidamente em memória.
+Os dados armazenados no Redis possuem TTL (Time-To-Live), garantindo que informações temporárias não permanecem indefinidamente em memória. Essa estratégia equilibra performance, consumo de memória e consistência do estado apresentado ao usuário.
 
 A invalidação é aplicada quando:
-
 - A sessão do usuário é encerrada;
 - O usuário altera sua seleção de questões;
 - O resultado de uma busca deixa de ser válido;
 - O contexto de autenticação é renovado;
 - Uma operação assíncrona é concluída.
 
-Essa estratégia equilibra performance, consumo de memória e consistência do estado apresentado ao usuário.
+---
+
+### Processamento Assíncrono e Exportação (Visão do Professor)
+
+Para rotinas mais pesadas, como a geração e o download de arquivos PDF de simulados, o sistema adota um fluxo assíncrono acionado via broker de mensagens. O estado da exportação é mantido no Redis enquanto o worker processa os dados e armazena o artefato final no MinIO.
 
 <p align="center">
-  <img src="./docs/imagens/diagramas/api.png">
+  <img src="./docs/imagens/diagramas/professor cache.png" alt="Fluxo de Exportação e Processamento Assíncrono do Professor">
 </p>
+
+alem do professor tem uma autoridade maior na plataforma, por ser mestre, 
+ele consta com uma licenca de login
+pass onde somente ele tem sua credencial de acesso disponibilizada pela propria plataforma, mesmo que alguem descubra a senha, essa pass gerado aleatoriamente e enviado via email, faz com que alguem de fora nao consiga ter acesso.
 
 > **Anexo:** [Busca, cache e sessão](./services/search-service/README.md)
 
@@ -424,6 +427,10 @@ Essa estratégia equilibra performance, consumo de memória e consistência do e
 ### Autenticação centralizada
 
 A autenticação dos usuários é centralizada no `identity-service`, que valida credenciais por meio do OpenLDAP e emite o contexto de sessão utilizado pelos demais serviços.
+
+<p align="center">
+  <img src="./docs/imagens/diagramas/kerberos.png">
+</p>
 
 ### Perfis de acesso
 
@@ -440,21 +447,13 @@ A autorização é aplicada tanto na camada de API quanto na lógica de negócio
 
 A comunicação entre Kafka, Elasticsearch e microsserviços é protegida por MIT Kerberos.
 
-O Kerberos utiliza principals, keytabs e autenticação mútua para garantir que apenas componentes autorizados consigam interagir com os serviços protegidos. A integração é realizada por meio de SASL/GSSAPI, que estabelece o contexto de segurança durante a comunicação.
-
-Essa abordagem evita que serviços internos dependam apenas de credenciais simples ou conexões não autenticadas, reduzindo a superfície de ataque da plataforma.
-
-### Princípios de segurança
-
-- Nenhum segredo deve ser versionado no repositório.
-- Keytabs, senhas, tokens e credenciais devem ser fornecidos por mecanismos seguros.
-- Logs não devem conter informações sensíveis.
-- Cada serviço deve utilizar o princípio do menor privilégio.
-- Alterações em autenticação, autorização ou criptografia exigem revisão técnica adicional.
-
 <p align="center">
   <img src="./docs/imagens/diagramas/security.png">
 </p>
+
+O Kerberos utiliza principals, keytabs e autenticação mútua para garantir que apenas componentes autorizados consigam interagir com os serviços protegidos. A integração é realizada por meio de SASL/GSSAPI, que estabelece o contexto de segurança durante a comunicação.
+
+Essa abordagem evita que serviços internos dependam apenas de credenciais simples ou conexões não autenticadas, reduzindo a superfície de ataque da plataforma.
 
 > **Anexo:** [Segurança e Kerberos](./docs/security/overview.md)
 
@@ -511,31 +510,33 @@ A diretiva `depends_on` com `condition: service_healthy` permite que o Compose a
 
 A pipeline de integração contínua é responsável por validar cada alteração antes que ela seja integrada à branch `main`. Sua função é garantir que o código compile, que as imagens sejam construídas corretamente, que os testes sejam executados e que nenhum conteúdo sensível seja introduzido no repositório.
 
-A esteira é executada automaticamente por meio do GitHub Actions em cada Pull Request aberto para a `main`. Uma alteração somente pode ser integrada quando todas as verificações obrigatórias forem concluídas com sucesso.
-
-### Proteção contra arquivos e informações críticas
-
-- Senhas, tokens e chaves de API;
-- Credenciais de banco, Kafka, Elasticsearch, Redis, MinIO ou LDAP;
-- Keytabs e principals do Kerberos;
-- Certificados privados e chaves criptográficas;
-- Arquivos `.env` com valores reais;
-- Configurações contendo dados de acesso a ambientes internos;
-- Informações pessoais, confidenciais ou dados de produção.
-
-O **secret scanning** analisa o repositório em busca de credenciais hardcoded, como chaves de API, senhas e tokens, e gera alertas quando identifica possíveis exposições.
+Cada serviço detem de sua determinada pipeline de teste, que so é alterada quando
+algo naquele determinado setor é devidamente modificado.
 
 <p align="center">
-  <img src="./docs/imagens/diagramas/observability.png">
+  <img src="./docs/imagens/diagramas/pipeline.png">
 </p>
 
-Quando habilitado, o **push protection** impede que o contribuidor envie um push contendo um segredo suportado, bloqueando a introdução da credencial antes que ela chegue ao repositório.
-
-### Comportamento em caso de falha
+A esteira é executada automaticamente, em cada Pull Request aberto para a `main`. Uma alteração somente pode ser integrada quando todas as verificações obrigatórias forem concluídas com sucesso, ou seja: 
 
 <p align="center">
-  <img src="./docs/imagens/diagramas/observability.png">
+  <img src="./docs/imagens/diagramas/pull.png">
 </p>
+
+Outro ponto importante sao os testes de verificaçao da pipeline onde detecta pontos
+de lixo, reticicios de codigo sujo e comentarios desestruturados, que podem afetar o entendimento dos profissionais na verificaçao da estrutura, onde ela gera um alerta relacionado aquela determinada seção.
+
+### Comportamento para a nuvem ☁️
+
+Além da execução local com Docker Compose, o Academic Pass está preparado para implantação em ambientes Kubernetes, com um fluxo de entrega integrado ao Argo CD já configurado e funcional.
+
+Nesse fluxo, as pipelines do GitHub Actions realizam as verificações dos serviços e a construção das imagens de contêiner. O Argo CD acompanha as configurações de implantação versionadas no Git e permite sincronizar o estado das aplicações no cluster Kubernetes com o estado declarado no repositório, seguindo a abordagem GitOps.
+
+<p align="center">
+  <img src="./docs/imagens/diagramas/argo.png">
+</p>
+
+Essa preparação amplia as possibilidades de implantação da plataforma sem substituir a execução local exigida pelo trabalho. O Docker Compose permanece como referência para reprodução do ambiente, enquanto Kubernetes e Argo CD representam uma evolução da infraestrutura para execução e gerenciamento em cluster, que pode futuramente ser implementado sua infraestrutura em terraform, para ecossitemas como AWS, GCP e Oracle.
 
 
 > **Anexo:** [CI/CD e esteira de entrega](./docs/ci-cd/overview.md)
