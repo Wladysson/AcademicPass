@@ -1,7 +1,7 @@
 # AcademicPass
 
 <p align="center">
-  <a href="./docs/orientacion/base.md">Arvore base</a>
+  <a href="./base.md">Arvore base</a>
 </p>
 
 
