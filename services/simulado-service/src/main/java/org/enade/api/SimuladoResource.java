@@ -3,9 +3,11 @@ package org.enade.simulado.api;
 import org.enade.simulado.application.SimuladoExportUseCase;
 import org.enade.simulado.presentation.dto.SimuladoExportRequestDto;
 import org.enade.simulado.presentation.dto.SimuladoExportResponseDto;
+
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -22,9 +24,15 @@ public class SimuladoResource {
 
     @POST
     @Path("/export")
-    public Response exportar(@Valid SimuladoExportRequestDto request) {
+    public Response exportar(
+            @Valid SimuladoExportRequestDto request,
+            @HeaderParam("Authorization") String authorizationHeader) {
+
         SimuladoExportResponseDto response =
-                simuladoExportUseCase.solicitarExportacao(request);
+                simuladoExportUseCase.solicitarExportacao(
+                        request,
+                        authorizationHeader
+                );
 
         return Response.accepted(response).build();
     }

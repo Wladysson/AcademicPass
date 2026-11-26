@@ -7,8 +7,10 @@ import org.enade.simulado.infrastructure.redis.ExportStatusRepository;
 import org.enade.simulado.infrastructure.security.ProfessorAuthorizationPolicy;
 import org.enade.simulado.presentation.dto.SimuladoExportRequestDto;
 import org.enade.simulado.presentation.dto.SimuladoExportResponseDto;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import org.jboss.logging.Logger;
 
 import java.time.Instant;
@@ -30,7 +32,8 @@ public class SimuladoExportUseCase {
     SimuladoExportRequestProducer exportRequestProducer;
 
     public SimuladoExportResponseDto solicitarExportacao(
-            SimuladoExportRequestDto request) {
+            SimuladoExportRequestDto request,
+            String authorizationHeader) {
 
         if (request == null) {
             throw new SimuladoExportException(
@@ -38,17 +41,17 @@ public class SimuladoExportUseCase {
             );
         }
 
-        professorAuthorizationPolicy.validarProfessor();
+        professorAuthorizationPolicy.validarProfessor(authorizationHeader);
 
-        String exportId = UUID.randomUUID().toString();
+        UUID exportId = UUID.randomUUID();
         Instant requestedAt = Instant.now();
 
         try {
             exportStatusRepository.salvar(
-                    exportId,
+                    exportId.toString(),
                     ExportStatus.REQUESTED,
                     null,
-                    null
+                    requestedAt
             );
 
             exportRequestProducer.publicar(
@@ -63,7 +66,7 @@ public class SimuladoExportUseCase {
             );
 
             return new SimuladoExportResponseDto(
-                    exportId,
+                    exportId.toString(),
                     ExportStatus.REQUESTED,
                     "Solicitação de exportação aceita.",
                     requestedAt
@@ -80,10 +83,10 @@ public class SimuladoExportUseCase {
 
             try {
                 exportStatusRepository.salvar(
-                        exportId,
+                        exportId.toString(),
                         ExportStatus.FAILED,
-                        null,
-                        "Não foi possível publicar a solicitação de exportação."
+                        "Não foi possível publicar a solicitação de exportação.",
+                        Instant.now()
                 );
             } catch (Exception statusException) {
                 LOG.errorf(

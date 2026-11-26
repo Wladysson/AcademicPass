@@ -1,7 +1,6 @@
 package org.enade.simulado.infrastructure.security;
 
 import org.enade.simulado.domain.exception.SimuladoExportException;
-import org.enade.infrastructure.identity.IdentityTokenValidator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -22,9 +21,6 @@ public class ProfessorAuthorizationPolicy {
 
     private static final Logger LOG =
             Logger.getLogger(ProfessorAuthorizationPolicy.class);
-
-    @Inject
-    IdentityTokenValidator identityTokenValidator;
 
     @Inject
     ObjectMapper objectMapper;
@@ -52,12 +48,6 @@ public class ProfessorAuthorizationPolicy {
         if (authorizationHeader == null || authorizationHeader.isBlank()) {
             throw new SimuladoExportException(
                     "O cabeçalho Authorization é obrigatório."
-            );
-        }
-
-        if (!identityTokenValidator.validar(authorizationHeader)) {
-            throw new SimuladoExportException(
-                    "Token inválido ou sessão não autorizada."
             );
         }
 
