@@ -1,0 +1,65 @@
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "refresh_interval": "5s",
+    "analysis": {
+      "filter": {
+        "portuguese_stop": {
+          "type": "stop",
+          "stopwords": "_portuguese_"
+        },
+        "portuguese_stemmer": {
+          "type": "stemmer",
+          "language": "light_portuguese"
+        },
+        "questions_synonyms": {
+          "type": "synonym_graph",
+          "lenient": true,
+          "synonyms": [
+            "ensino superior, educação superior",
+            "educação básica, ensino básico",
+            "gabarito, resposta correta",
+            "questão, pergunta",
+            "prova, exame, avaliação",
+            "licenciatura, formação de professores",
+            "bacharelado, graduação",
+            "docente, professor",
+            "discente, estudante, aluno",
+            "instituição de ensino, instituição educacional"
+          ]
+        }
+      },
+      "analyzer": {
+        "brazilian": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "asciifolding",
+            "portuguese_stop",
+            "portuguese_stemmer"
+          ]
+        },
+        "brazilian_search": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "asciifolding",
+            "questions_synonyms",
+            "portuguese_stop",
+            "portuguese_stemmer"
+          ]
+        }
+      }
+    },
+    "similarity": {
+      "questions_similarity": {
+        "type": "BM25",
+        "k1": 1.2,
+        "b": 0.75
+      }
+    }
+  }
+}

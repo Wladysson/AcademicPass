@@ -1,0 +1,36 @@
+dn: dc=example,dc=org
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+dc: example
+o: AcademicPass
+
+dn: ou=People,dc=example,dc=org
+objectClass: top
+objectClass: organizationalUnit
+ou: People
+description: Usuarios do AcademicPass
+
+dn: ou=Groups,dc=example,dc=org
+objectClass: top
+objectClass: organizationalUnit
+ou: Groups
+description: Grupos de acesso e autorizacao do AcademicPass
+
+dn: ou=Services,dc=example,dc=org
+objectClass: top
+objectClass: organizationalUnit
+ou: Services
+description: Contas de servico utilizadas pelos microsservicos
+
+dn: ou=Applications,dc=example,dc=org
+objectClass: top
+objectClass: organizationalUnit
+ou: Applications
+description: Aplicacoes integradas ao diretorio LDAP
+
+dn: ou=Roles,dc=example,dc=org
+objectClass: top
+objectClass: organizationalUnit
+ou: Roles
+description: Estrutura organizacional de funcoes e permissoes

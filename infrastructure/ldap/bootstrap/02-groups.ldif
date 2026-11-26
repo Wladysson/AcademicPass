@@ -1,0 +1,13 @@
+dn: cn=STUDENT,ou=Groups,dc=example,dc=org
+objectClass: top
+objectClass: groupOfNames
+cn: STUDENT
+description: Grupo de usuarios com permissao de estudante
+member: cn=directory-admin,dc=example,dc=org
+
+dn: cn=PROFESSOR,ou=Groups,dc=example,dc=org
+objectClass: top
+objectClass: groupOfNames
+cn: PROFESSOR
+description: Grupo de usuarios com permissao de professor
+member: cn=directory-admin,dc=example,dc=org
