@@ -1,0 +1,239 @@
+{
+  "type": "record",
+  "name": "ProcessingErrorEvent",
+  "namespace": "org.academicpass.events.common",
+  "doc": "Evento padronizado para registrar falhas de processamento encaminhadas para Dead Letter Queue.",
+  "fields": [
+    {
+      "name": "event_id",
+      "type": "string",
+      "doc": "Identificador único do evento de erro."
+    },
+    {
+      "name": "event_type",
+      "type": {
+        "type": "enum",
+        "name": "EventType",
+        "symbols": [
+          "PROCESSING_ERROR"
+        ]
+      }
+    },
+    {
+      "name": "schema_version",
+      "type": "string",
+      "default": "1.0"
+    },
+    {
+      "name": "occurred_at",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "Instante em que a falha foi registrada."
+    },
+    {
+      "name": "original_event",
+      "type": "record",
+      "name": "OriginalEventReference",
+      "doc": "Referência ao evento que apresentou falha.",
+      "fields": [
+        {
+          "name": "event_id",
+          "type": "string"
+        },
+        {
+          "name": "event_type",
+          "type": "string"
+        },
+        {
+          "name": "schema_version",
+          "type": "string"
+        },
+        {
+          "name": "topic",
+          "type": "string"
+        },
+        {
+          "name": "partition",
+          "type": "int"
+        },
+        {
+          "name": "offset",
+          "type": "long"
+        },
+        {
+          "name": "key",
+          "type": [
+            "null",
+            "string"
+          ],
+          "default": null,
+          "doc": "Chave Kafka da mensagem original."
+        }
+      ]
+    },
+    {
+      "name": "processing",
+      "type": "record",
+      "name": "ProcessingContext",
+      "doc": "Contexto do processamento que apresentou falha.",
+      "fields": [
+        {
+          "name": "service",
+          "type": "string",
+          "doc": "Serviço responsável pelo processamento."
+        },
+        {
+          "name": "consumer_group",
+          "type": [
+            "null",
+            "string"
+          ],
+          "default": null
+        },
+        {
+          "name": "worker_id",
+          "type": [
+            "null",
+            "string"
+          ],
+          "default": null
+        },
+        {
+          "name": "started_at",
+          "type": [
+            "null",
+            {
+              "type": "long",
+              "logicalType": "timestamp-millis"
+            }
+          ],
+          "default": null
+        },
+        {
+          "name": "failed_at",
+          "type": {
+            "type": "long",
+            "logicalType": "timestamp-millis"
+          }
+        },
+        {
+          "name": "attempt",
+          "type": "int",
+          "default": 1
+        },
+        {
+          "name": "max_attempts",
+          "type": [
+            "null",
+            "int"
+          ],
+          "default": null
+        }
+      ]
+    },
+    {
+      "name": "error",
+      "type": "record",
+      "name": "ErrorDetails",
+      "doc": "Informações técnicas e classificações da falha.",
+      "fields": [
+        {
+          "name": "code",
+          "type": "string",
+          "doc": "Código padronizado do erro."
+        },
+        {
+          "name": "category",
+          "type": {
+            "type": "enum",
+            "name": "ErrorCategory",
+            "symbols": [
+              "VALIDATION",
+              "SERIALIZATION",
+              "PROCESSING",
+              "DEPENDENCY",
+              "TIMEOUT",
+              "AUTHENTICATION",
+              "RESOURCE",
+              "UNKNOWN"
+            ]
+          }
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "doc": "Descrição segura da falha."
+        },
+        {
+          "name": "exception_type",
+          "type": [
+            "null",
+            "string"
+          ],
+          "default": null
+        },
+        {
+          "name": "retryable",
+          "type": "boolean",
+          "default": false
+        },
+        {
+          "name": "stack_trace",
+          "type": [
+            "null",
+            "string"
+          ],
+          "default": null,
+          "doc": "Rastreamento técnico opcional, sem credenciais ou dados sensíveis."
+        ]
+      }
+    },
+    {
+      "name": "dead_letter",
+      "type": "record",
+      "name": "DeadLetterMetadata",
+      "doc": "Informações sobre o encaminhamento para a DLQ.",
+      "fields": [
+        {
+          "name": "source_topic",
+          "type": "string"
+        },
+        {
+          "name": "dead_letter_topic",
+          "type": "string"
+        },
+        {
+          "name": "routed_at",
+          "type": {
+            "type": "long",
+            "logicalType": "timestamp-millis"
+          }
+        },
+        {
+          "name": "routing_reason",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "correlation_id",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null,
+      "doc": "Identificador para correlacionar operações relacionadas."
+    },
+    {
+      "name": "metadata",
+      "type": {
+        "type": "map",
+        "values": "string"
+      },
+      "default": {},
+      "doc": "Informações adicionais para diagnóstico e rastreabilidade."
+    }
+  ]
+}

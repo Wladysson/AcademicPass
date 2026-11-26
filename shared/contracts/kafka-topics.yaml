@@ -1,0 +1,134 @@
+version: "1.0"
+
+cluster:
+  name: academicpass-kafka
+  mode: kraft
+  security_protocol: SASL_PLAINTEXT
+  sasl_mechanism: GSSAPI
+
+defaults:
+  partitions: 3
+  replication_factor: 1
+  min_insync_replicas: 1
+  retention_ms: 604800000
+  cleanup_policy: delete
+  compression_type: producer
+
+topics:
+  - name: enade.pdfs.discovered
+    description: PDFs descobertos e disponibilizados para processamento.
+    partitions: 3
+    replication_factor: 1
+    retention_ms: 604800000
+    cleanup_policy: delete
+    key: storage_key
+    producer:
+      service: ingestion-service
+      event: PdfDiscoveredEvent
+    consumers:
+      - group_id: academicpass-extraction-group
+        service: extraction-service
+    dlq: enade.pdfs.discovered.dlq
+
+  - name: enade.pdfs.discovered.dlq
+    description: Eventos de PDFs descobertos que falharam no processamento.
+    partitions: 3
+    replication_factor: 1
+    retention_ms: 2592000000
+    cleanup_policy: delete
+    key: storage_key
+    producer:
+      service: extraction-service
+      event: PdfDiscoveredEvent
+    consumers:
+      - group_id: academicpass-pdf-discovered-dlq-group
+        service: dlq-monitor
+    dlq: null
+
+  - name: enade.questions.structured
+    description: Questões extraídas e estruturadas, prontas para indexação.
+    partitions: 3
+    replication_factor: 1
+    retention_ms: 604800000
+    cleanup_policy: delete
+    key: question_id
+    producer:
+      service: extraction-service
+      event: QuestionStructuredEvent
+    consumers:
+      - group_id: academicpass-indexing-group
+        service: indexing-service
+    dlq: enade.questions.structured.dlq
+
+  - name: enade.questions.structured.dlq
+    description: Questões estruturadas que falharam durante a indexação.
+    partitions: 3
+    replication_factor: 1
+    retention_ms: 2592000000
+    cleanup_policy: delete
+    key: question_id
+    producer:
+      service: indexing-service
+      event: QuestionStructuredEvent
+    consumers:
+      - group_id: academicpass-question-structured-dlq-group
+        service: dlq-monitor
+    dlq: null
+
+  - name: enade.simulados.requested
+    description: Solicitações de geração de simulados.
+    partitions: 3
+    replication_factor: 1
+    retention_ms: 604800000
+    cleanup_policy: delete
+    key: request_id
+    producer:
+      service: simulado-service
+      event: SimuladoRequestedEvent
+    consumers:
+      - group_id: academicpass-simulado-worker-group
+        service: simulado-service
+    dlq: enade.simulados.requested.dlq
+
+  - name: enade.simulados.requested.dlq
+    description: Solicitações de simulados que falharam no processamento.
+    partitions: 3
+    replication_factor: 1
+    retention_ms: 2592000000
+    cleanup_policy: delete
+    key: request_id
+    producer:
+      service: simulado-service
+      event: SimuladoRequestedEvent
+    consumers:
+      - group_id: academicpass-simulado-dlq-group
+        service: dlq-monitor
+    dlq: null
+
+  - name: enade.simulados.completed
+    description: Simulados gerados e disponibilizados para consulta ou exportação.
+    partitions: 3
+    replication_factor: 1
+    retention_ms: 604800000
+    cleanup_policy: delete
+    key: request_id
+    producer:
+      service: simulado-service
+      event: SimuladoCompletedEvent
+    consumers: []
+    dlq: enade.simulados.completed.dlq
+
+  - name: enade.simulados.completed.dlq
+    description: Eventos de conclusão de simulados que falharam no consumo.
+    partitions: 3
+    replication_factor: 1
+    retention_ms: 2592000000
+    cleanup_policy: delete
+    key: request_id
+    producer:
+      service: simulado-service
+      event: SimuladoCompletedEvent
+    consumers:
+      - group_id: academicpass-simulado-completed-dlq-group
+        service: dlq-monitor
+    dlq: null

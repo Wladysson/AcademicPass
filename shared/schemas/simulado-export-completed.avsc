@@ -1,0 +1,217 @@
+{
+  "type": "record",
+  "name": "SimuladoExportCompletedEvent",
+  "namespace": "org.academicpass.events.simulado",
+  "doc": "Evento publicado quando uma solicitação de exportação de simulado termina seu processamento.",
+  "fields": [
+    {
+      "name": "event_id",
+      "type": "string",
+      "doc": "Identificador único do evento."
+    },
+    {
+      "name": "event_type",
+      "type": {
+        "type": "enum",
+        "name": "EventType",
+        "symbols": [
+          "SIMULADO_EXPORT_COMPLETED"
+        ]
+      }
+    },
+    {
+      "name": "schema_version",
+      "type": "string",
+      "default": "1.0"
+    },
+    {
+      "name": "occurred_at",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "Instante em que o resultado da exportação foi registrado."
+    },
+    {
+      "name": "request_id",
+      "type": "string",
+      "doc": "Identificador da solicitação de exportação original."
+    },
+    {
+      "name": "simulado_id",
+      "type": "string",
+      "doc": "Identificador do simulado exportado."
+    },
+    {
+      "name": "status",
+      "type": {
+        "type": "enum",
+        "name": "ExportStatus",
+        "symbols": [
+          "COMPLETED",
+          "FAILED"
+        ]
+      },
+      "doc": "Resultado final do processamento da exportação."
+    },
+    {
+      "name": "export",
+      "type": "record",
+      "name": "ExportResult",
+      "doc": "Informações do arquivo produzido.",
+      "fields": [
+        {
+          "name": "format",
+          "type": {
+            "type": "enum",
+            "name": "ExportFormat",
+            "symbols": [
+              "PDF",
+              "JSON"
+            ]
+          }
+        },
+        {
+          "name": "storage_provider",
+          "type": [
+            "null",
+            {
+              "type": "enum",
+              "name": "StorageProvider",
+              "symbols": [
+                "MINIO"
+              ]
+            }
+          ],
+          "default": null
+        },
+        {
+          "name": "storage_key",
+          "type": [
+            "null",
+            "string"
+          ],
+          "default": null,
+          "doc": "Chave do arquivo exportado no armazenamento."
+        },
+        {
+          "name": "filename",
+          "type": [
+            "null",
+            "string"
+          ],
+          "default": null,
+          "doc": "Nome do arquivo gerado."
+        },
+        {
+          "name": "content_type",
+          "type": [
+            "null",
+            "string"
+          ],
+          "default": null,
+          "doc": "MIME type do arquivo gerado."
+        },
+        {
+          "name": "size_bytes",
+          "type": [
+            "null",
+            "long"
+          ],
+          "default": null,
+          "doc": "Tamanho do arquivo produzido em bytes."
+        },
+        {
+          "name": "checksum",
+          "type": [
+            "null",
+            "string"
+          ],
+          "default": null,
+          "doc": "Hash SHA-256 do arquivo exportado."
+        }
+      ]
+    },
+    {
+      "name": "error",
+      "type": [
+        "null",
+        {
+          "type": "record",
+          "name": "ExportError",
+          "fields": [
+            {
+              "name": "code",
+              "type": "string",
+              "doc": "Código identificador da falha."
+            },
+            {
+              "name": "message",
+              "type": "string",
+              "doc": "Descrição segura da falha."
+            },
+            {
+              "name": "retryable",
+              "type": "boolean",
+              "default": false,
+              "doc": "Indica se a operação pode ser reprocessada."
+            }
+          ]
+        }
+      ],
+      "default": null,
+      "doc": "Detalhes da falha, quando a exportação não for concluída."
+    },
+    {
+      "name": "processing",
+      "type": "record",
+      "name": "ProcessingMetadata",
+      "doc": "Informações sobre a execução da exportação.",
+      "fields": [
+        {
+          "name": "started_at",
+          "type": {
+            "type": "long",
+            "logicalType": "timestamp-millis"
+          }
+        },
+        {
+          "name": "finished_at",
+          "type": {
+            "type": "long",
+            "logicalType": "timestamp-millis"
+          }
+        },
+        {
+          "name": "duration_ms",
+          "type": "long",
+          "doc": "Duração total do processamento em milissegundos."
+        },
+        {
+          "name": "worker_id",
+          "type": [
+            "null",
+            "string"
+          ],
+          "default": null,
+          "doc": "Identificador da instância responsável pelo processamento."
+        },
+        {
+          "name": "attempt",
+          "type": "int",
+          "default": 1,
+          "doc": "Número da tentativa de processamento."
+        }
+      ]
+    },
+    {
+      "name": "metadata",
+      "type": {
+        "type": "map",
+        "values": "string"
+      },
+      "default": {},
+      "doc": "Informações adicionais para rastreabilidade."
+    }
+  ]
+}

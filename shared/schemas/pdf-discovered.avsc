@@ -1,0 +1,147 @@
+{
+  "type": "record",
+  "name": "PdfDiscoveredEvent",
+  "namespace": "org.academicpass.events.ingestion",
+  "doc": "Evento publicado quando um PDF é descoberto, validado e disponibilizado para processamento.",
+  "fields": [
+    {
+      "name": "event_id",
+      "type": "string",
+      "doc": "Identificador único do evento."
+    },
+    {
+      "name": "event_type",
+      "type": {
+        "type": "enum",
+        "name": "EventType",
+        "symbols": [
+          "PDF_DISCOVERED"
+        ]
+      },
+      "doc": "Tipo do evento publicado."
+    },
+    {
+      "name": "schema_version",
+      "type": "string",
+      "default": "1.0",
+      "doc": "Versão do contrato do evento."
+    },
+    {
+      "name": "occurred_at",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "Instante em que o evento foi produzido, em milissegundos desde Unix Epoch."
+    },
+    {
+      "name": "storage_key",
+      "type": "string",
+      "doc": "Chave única utilizada para localizar o PDF no armazenamento compartilhado."
+    },
+    {
+      "name": "checksum",
+      "type": "record",
+      "name": "Checksum",
+      "fields": [
+        {
+          "name": "algorithm",
+          "type": "string",
+          "default": "SHA-256"
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "doc": "Valor hexadecimal do hash do arquivo."
+        }
+      ]
+    },
+    {
+      "name": "size_bytes",
+      "type": "long",
+      "doc": "Tamanho do arquivo em bytes."
+    },
+    {
+      "name": "file",
+      "type": "record",
+      "name": "FileMetadata",
+      "fields": [
+        {
+          "name": "filename",
+          "type": "string",
+          "doc": "Nome original do arquivo."
+        },
+        {
+          "name": "content_type",
+          "type": "string",
+          "default": "application/pdf"
+        },
+        {
+          "name": "page_count",
+          "type": [
+            "null",
+            "int"
+          ],
+          "default": null,
+          "doc": "Quantidade de páginas, quando disponível."
+        },
+        {
+          "name": "language",
+          "type": [
+            "null",
+            "string"
+          ],
+          "default": null,
+          "doc": "Idioma identificado ou informado para o documento."
+        }
+      ]
+    },
+    {
+      "name": "origin",
+      "type": "record",
+      "name": "DocumentOrigin",
+      "fields": [
+        {
+          "name": "source_type",
+          "type": {
+            "type": "enum",
+            "name": "SourceType",
+            "symbols": [
+              "URL",
+              "UPLOAD",
+              "REPOSITORY",
+              "MANUAL"
+            ]
+          },
+          "doc": "Tipo da origem do documento."
+        },
+        {
+          "name": "source_reference",
+          "type": [
+            "null",
+            "string"
+          ],
+          "default": null,
+          "doc": "URL, identificador do repositório ou referência de origem."
+        },
+        {
+          "name": "discovered_at",
+          "type": {
+            "type": "long",
+            "logicalType": "timestamp-millis"
+          },
+          "doc": "Instante em que o documento foi descoberto."
+        }
+      ]
+    },
+    {
+      "name": "metadata",
+      "type": {
+        "type": "map",
+        "values": "string"
+      },
+      "default": {},
+      "doc": "Metadados adicionais do documento, como ano, área e instituição."
+    }
+  ]
+}

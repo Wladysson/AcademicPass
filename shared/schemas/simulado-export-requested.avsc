@@ -1,0 +1,145 @@
+{
+  "type": "record",
+  "name": "SimuladoExportRequestedEvent",
+  "namespace": "org.academicpass.events.simulado",
+  "doc": "Evento publicado quando um usuário solicita a exportação de um simulado.",
+  "fields": [
+    {
+      "name": "event_id",
+      "type": "string",
+      "doc": "Identificador único do evento."
+    },
+    {
+      "name": "event_type",
+      "type": {
+        "type": "enum",
+        "name": "EventType",
+        "symbols": [
+          "SIMULADO_EXPORT_REQUESTED"
+        ]
+      }
+    },
+    {
+      "name": "schema_version",
+      "type": "string",
+      "default": "1.0"
+    },
+    {
+      "name": "occurred_at",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "Instante em que a solicitação foi registrada."
+    },
+    {
+      "name": "request_id",
+      "type": "string",
+      "doc": "Identificador único da solicitação de exportação."
+    },
+    {
+      "name": "simulado_id",
+      "type": "string",
+      "doc": "Identificador do simulado que será exportado."
+    },
+    {
+      "name": "requested_by",
+      "type": "record",
+      "name": "RequestUser",
+      "doc": "Identificação do usuário que solicitou a exportação.",
+      "fields": [
+        {
+          "name": "user_id",
+          "type": "string"
+        },
+        {
+          "name": "role",
+          "type": {
+            "type": "enum",
+            "name": "UserRole",
+            "symbols": [
+              "STUDENT",
+              "PROFESSOR"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "export",
+      "type": "record",
+      "name": "ExportConfiguration",
+      "doc": "Configurações do formato e da geração do arquivo.",
+      "fields": [
+        {
+          "name": "format",
+          "type": {
+            "type": "enum",
+            "name": "ExportFormat",
+            "symbols": [
+              "PDF",
+              "JSON"
+            ]
+          },
+          "doc": "Formato de saída solicitado."
+        },
+        {
+          "name": "include_answer_key",
+          "type": "boolean",
+          "default": false,
+          "doc": "Indica se o gabarito deve ser incluído na exportação."
+        },
+        {
+          "name": "include_explanations",
+          "type": "boolean",
+          "default": false,
+          "doc": "Indica se as explicações das respostas devem ser incluídas."
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "default": "pt-BR",
+          "doc": "Idioma utilizado na apresentação do documento."
+        }
+      ]
+    },
+    {
+      "name": "destination",
+      "type": [
+        "null",
+        {
+          "type": "record",
+          "name": "ExportDestination",
+          "fields": [
+            {
+              "name": "storage_provider",
+              "type": {
+                "type": "enum",
+                "name": "StorageProvider",
+                "symbols": [
+                  "MINIO"
+                ]
+              }
+            },
+            {
+              "name": "storage_key",
+              "type": "string",
+              "doc": "Chave de armazenamento prevista para o arquivo exportado."
+            }
+          ]
+        }
+      ],
+      "default": null,
+      "doc": "Destino de armazenamento, quando definido previamente."
+    },
+    {
+      "name": "metadata",
+      "type": {
+        "type": "map",
+        "values": "string"
+      },
+      "default": {},
+      "doc": "Informações adicionais relacionadas à solicitação."
+    }
+  ]
+}
